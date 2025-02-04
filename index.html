@@ -332,8 +332,8 @@
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
-      // Expand the touch area: allow kick trigger if within 3 * ballRadius.
-      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 3) {
+      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
@@ -366,8 +366,8 @@
       evt.preventDefault();
       const touch = evt.touches[0];
       const pos = getCanvasPos(gameCanvas, touch);
-      // Expand the touch area: allow kick trigger if within 3 * ballRadius.
-      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 3) {
+      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
