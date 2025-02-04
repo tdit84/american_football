@@ -79,6 +79,12 @@
   <div id="gameContainer">
     <canvas id="gameCanvas" width="800" height="650"></canvas>
     <svg id="fieldOverlay" viewBox="0 0 800 650" preserveAspectRatio="none">
+      <!-- End Zone Rectangles (Light Red) -->
+      <rect x="0" y="50" width="80" height="550" fill="#ffcccc"/>
+      <rect x="720" y="50" width="80" height="550" fill="#ffcccc"/>
+      <!-- End Zone Labels -->
+      <text x="40" y="325" fill="black" font-size="24" font-weight="bold" text-anchor="middle" transform="rotate(-90,40,325)">EVA</text>
+      <text x="760" y="325" fill="black" font-size="24" font-weight="bold" text-anchor="middle" transform="rotate(90,760,325)">SONYA</text>
       <!-- Field boundaries and yard lines from y=50 to y=600 -->
       <line x1="80" y1="50" x2="80" y2="600" stroke="white" stroke-width="2"/>
       <line x1="720" y1="50" x2="720" y2="600" stroke="white" stroke-width="2"/>
@@ -91,7 +97,7 @@
       <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
       <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
       <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers remain at y=30 -->
+      <!-- Top yard markers: count up to 50 then back down -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -101,7 +107,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
-      <!-- Bottom yard markers at y=640 -->
+      <!-- Bottom yard markers: same values -->
       <text x="144" y="640" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="640" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="640" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -302,7 +308,7 @@
         context.textAlign = "center";
         context.fillText("Final Score: " + score, 400, 320);
       }
-      // Draw obstacle symbols.
+      // Draw obstacle symbols ("X" or "O") inside obstacles.
       Composite.allBodies(world).forEach(body => {
         if (body.isObstacle && body.symbol) {
           context.save();
@@ -318,7 +324,7 @@
       });
     });
 
-    // Interaction for the Kick
+    // Interaction for the Kick.
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
@@ -391,7 +397,7 @@
       }
     });
 
-    // Collision and Reset Functions
+    // Collision and Reset Functions.
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
