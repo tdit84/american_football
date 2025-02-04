@@ -280,6 +280,7 @@
       render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
+    ball.render.visible = false;
 
     // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
     Events.on(render, 'afterRender', function() {
