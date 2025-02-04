@@ -8,11 +8,11 @@
   <!-- Open Graph Meta Tags for shareable image -->
   <meta property="og:title" content="American Football">
   <meta property="og:description" content="Play American Football!">
-  <meta property="og:image" content="https://{username}.github.io/{repo}/American_football_website_image.png">
-  <meta property="og:url" content="https://{username}.github.io/{repo}/">
+  <meta property="og:image" content="https://tdit84.github.io/american_football/images/American_football_website_image.png">
+  <meta property="og:url" content="https://tdit84.github.io/american_football/">
   <meta property="og:type" content="website">
   
-  <title>Emoji Football Kick Game</title>
+  <title>Emoji American Football Kick Game</title>
   <style>
     html, body {
       margin: 0;
@@ -292,7 +292,7 @@
     // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-      // Draw the football emoji on the ball.
+      // Draw the American football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
@@ -337,9 +337,9 @@
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
-    gameCanvas.addEventListener('mousedown', function(evt) {
+    canvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
-      const pos = getCanvasPos(gameCanvas, evt);
+      const pos = getCanvasPos(canvas, evt);
       // Expand the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
@@ -347,17 +347,17 @@
         dragCurrent = pos;
       }
     });
-    gameCanvas.addEventListener('mousemove', function(evt) {
+    canvas.addEventListener('mousemove', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
-        dragCurrent = getCanvasPos(gameCanvas, evt);
+        dragCurrent = getCanvasPos(canvas, evt);
       }
     });
-    gameCanvas.addEventListener('mouseup', function(evt) {
+    canvas.addEventListener('mouseup', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
         isDragging = false;
-        const dragEnd = getCanvasPos(gameCanvas, evt);
+        const dragEnd = getCanvasPos(canvas, evt);
         const forceMagnitude = 0.005;
         const force = {
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
@@ -369,11 +369,11 @@
         dragCurrent = null;
       }
     });
-    gameCanvas.addEventListener('touchstart', function(evt) {
+    canvas.addEventListener('touchstart', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       const touch = evt.touches[0];
-      const pos = getCanvasPos(gameCanvas, touch);
+      const pos = getCanvasPos(canvas, touch);
       // Expand the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
@@ -381,21 +381,21 @@
         dragCurrent = pos;
       }
     });
-    gameCanvas.addEventListener('touchmove', function(evt) {
+    canvas.addEventListener('touchmove', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       if (isDragging) {
         const touch = evt.touches[0];
-        dragCurrent = getCanvasPos(gameCanvas, touch);
+        dragCurrent = getCanvasPos(canvas, touch);
       }
     });
-    gameCanvas.addEventListener('touchend', function(evt) {
+    canvas.addEventListener('touchend', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       if (isDragging) {
         isDragging = false;
         const touch = evt.changedTouches[0];
-        const dragEnd = getCanvasPos(gameCanvas, touch);
+        const dragEnd = getCanvasPos(canvas, touch);
         const forceMagnitude = 0.005;
         const force = {
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
