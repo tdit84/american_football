@@ -10,19 +10,17 @@
       margin: 0;
       padding: 0;
       overflow-y: auto;
-      background: #087E3B; /* Field green */
+      background: #087E3B;
       height: 100%;
       width: 100%;
       font-family: sans-serif;
     }
-    /* Container for the game canvas and SVG overlay */
     #gameContainer {
       position: relative;
       width: 100%;
       min-height: 650px;
       background: #087E3B;
     }
-    /* The Matter.js game canvas */
     #gameCanvas {
       position: absolute;
       top: 0;
@@ -30,7 +28,6 @@
       z-index: 1;
       display: block;
     }
-    /* SVG overlay for field markings */
     #fieldOverlay {
       position: absolute;
       top: 0;
@@ -40,8 +37,9 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard container inside the game area, positioned at 60px from top */
-    #scoreboardContainer {
+    /* New Game button replaces the scoreboard.
+       It is styled to be 400px wide and 60px tall, and positioned 60px from the top, centered horizontally. */
+    #newGameButton {
       position: absolute;
       top: 60px;
       left: 50%;
@@ -55,28 +53,15 @@
       text-align: center;
       border: 2px solid white;
       border-radius: 8px;
-      z-index: 3;
-      pointer-events: none;
-    }
-    /* New Game button styling (absolutely positioned over the game area) */
-    #newGameButton {
-      position: absolute;
-      display: none;
-      font-size: 32px;
-      padding: 15px 30px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 8px;
       cursor: pointer;
       z-index: 4;
+      display: none;
     }
   </style>
 </head>
 <body>
   <div id="gameContainer">
     <canvas id="gameCanvas" width="800" height="650"></canvas>
-    <!-- SVG overlay for field markings -->
     <svg id="fieldOverlay" viewBox="0 0 800 650" preserveAspectRatio="none">
       <!-- Endzone boundaries drawn from y=50 to y=600 -->
       <line x1="80" y1="50" x2="80" y2="600" stroke="white" stroke-width="2"/>
@@ -91,7 +76,7 @@
       <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
       <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
       <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers remain at y=30 -->
+      <!-- Top yard markers at y=30 -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -112,23 +97,21 @@
       <text x="592" y="640" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="640" fill="white" font-size="24" text-anchor="middle">90</text>
       <!-- Revised Goal Posts in yellow:
-           - Two vertical posts at x=730 and x=770 from y=400 to y=600.
-           - A horizontal crossbar from (730,600) to (770,600).
-           - A center vertical line drawn only below the crossbar from (750,600) to (750,640). -->
+           Two vertical posts at x=730 and x=770 from y=400 to y=600,
+           a horizontal crossbar from (730,600) to (770,600),
+           and a center vertical line drawn only below the crossbar from (750,600) to (750,640). -->
       <line x1="730" y1="400" x2="730" y2="600" stroke="yellow" stroke-width="4"/>
       <line x1="770" y1="400" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
       <line x1="730" y1="600" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
       <line x1="750" y1="600" x2="750" y2="640" stroke="yellow" stroke-width="4"/>
     </svg>
-    <!-- Scoreboard overlay inside the game container -->
-    <div id="scoreboardContainer">Score: 0   Time: 30</div>
-    <!-- New Game button (absolutely positioned over the game area) -->
+    <!-- New Game button positioned inside the game container -->
     <button id="newGameButton">New Game</button>
   </div>
   <!-- Include Matter.js from a CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
-    // --- Responsive Resize Function ---
+    // Responsive Resize Function
     function resizeCanvases() {
       const gameCanvas = document.getElementById('gameCanvas');
       const overlay = document.getElementById('fieldOverlay');
@@ -164,8 +147,8 @@
     }
     window.addEventListener('resize', resizeCanvases);
     resizeCanvases();
-    
-    // --- Adjust getCanvasPos to account for scaling ---
+
+    // Convert event coordinates according to scale
     function getCanvasPos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const scale = parseFloat(canvas.dataset.scale) || 1;
@@ -174,8 +157,8 @@
         y: (evt.clientY - rect.top) / scale
       };
     }
-    
-    // --- Matter.js Setup ---
+
+    // Matter.js Setup
     const Engine = Matter.Engine,
           Render = Matter.Render,
           Runner = Matter.Runner,
@@ -183,12 +166,11 @@
           Composite = Matter.Composite,
           Body = Matter.Body,
           Events = Matter.Events;
-    
+
     const engine = Engine.create();
     const world = engine.world;
-    
+
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set background to transparent so the SVG overlay shows.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
@@ -200,22 +182,21 @@
       }
     });
     Render.run(render);
-    
+
     const runner = Runner.create();
     Runner.run(runner, engine);
-    
-    // --- Global Game Variables ---
+
+    // Global Game Variables
     let score = 0;
     let kickCount = 0;
-    let goalMessage = "";
     let timeLeft = 30;
     let gameActive = true;
-    
-    // --- Countdown Timer ---
+
+    // Countdown Timer
     const timerInterval = setInterval(() => {
       if (gameActive) {
         timeLeft--;
-        document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
+        document.getElementById('newGameButton').textContent = "New Game - Score: " + score + "   Time: " + timeLeft;
         if (timeLeft <= 0) {
           timeLeft = 0;
           gameActive = false;
@@ -227,63 +208,59 @@
         }
       }
     }, 1000);
-    
-    // --- New Game Button ---
+
+    // New Game Button
     const newGameButton = document.getElementById('newGameButton');
     newGameButton.addEventListener('click', () => {
       resetGame();
       newGameButton.style.display = "none";
-      document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
     });
-    
-    // --- Create the Scene (no vertical shift) ---
+
+    // Create the Scene
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
       render: { fillStyle: "#087E3B" }
     });
     Composite.add(world, ground);
-    
+
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
-      isStatic: true, 
-      angle: Math.PI * 0.06, 
+      isStatic: true,
+      angle: Math.PI * 0.06,
       render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
-      isStatic: true, 
-      angle: -Math.PI * 0.1, 
+      isStatic: true,
+      angle: -Math.PI * 0.1,
       render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
     Composite.add(world, [obstacle1, obstacle2]);
-    
-    const goal = Bodies.rectangle(750, 500, 80, 200, { 
-      isStatic: true, 
-      isSensor: true, 
+
+    const goal = Bodies.rectangle(750, 500, 80, 200, {
+      isStatic: true,
+      isSensor: true,
       render: { fillStyle: "rgba(0,0,0,0)" }
     });
     Composite.add(world, goal);
-    
+
     const ballRadius = 20;
-    const ball = Bodies.circle(150, 500, ballRadius, { 
-      restitution: 0.6, 
+    const ball = Bodies.circle(150, 500, ballRadius, {
+      restitution: 0.6,
       density: 0.004,
       render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
-    
-    // --- Custom Rendering for Game Info and Drag Indicator ---
+
+    // Custom Rendering for Game Info and Drag Indicator
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-      
-      // Draw the football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-      
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
         context.lineWidth = 3;
@@ -294,7 +271,6 @@
         context.font = "75px serif";
         context.fillText("👟", ball.position.x - 50, ball.position.y);
       }
-      
       if (!gameActive) {
         context.font = "64px sans-serif";
         context.fillStyle = "white";
@@ -302,12 +278,11 @@
         context.fillText("Final Score: " + score, 400, 320);
       }
     });
-    
-    // --- Interaction for the Kick ---
+
+    // Interaction for the Kick
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
-    
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
@@ -317,14 +292,12 @@
         dragCurrent = pos;
       }
     });
-    
     gameCanvas.addEventListener('mousemove', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
         dragCurrent = getCanvasPos(gameCanvas, evt);
       }
     });
-    
     gameCanvas.addEventListener('mouseup', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
@@ -341,7 +314,6 @@
         dragCurrent = null;
       }
     });
-    
     gameCanvas.addEventListener('touchstart', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -353,7 +325,6 @@
         dragCurrent = pos;
       }
     });
-    
     gameCanvas.addEventListener('touchmove', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -362,7 +333,6 @@
         dragCurrent = getCanvasPos(gameCanvas, touch);
       }
     });
-    
     gameCanvas.addEventListener('touchend', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -381,8 +351,8 @@
         dragCurrent = null;
       }
     });
-    
-    // --- Collision Events and Reset Functions ---
+
+    // Collision and Reset Functions
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -391,8 +361,7 @@
           let roundScore = 100 - ((kickCount - 1) * 10);
           if (roundScore < 0) roundScore = 0;
           score += roundScore;
-          goalMessage = "TOUCHDOWN!";
-          setTimeout(() => { goalMessage = ""; }, 2000);
+          setTimeout(() => {}, 2000);
           resetRound();
           // Create a new obstacle.
           let newX, newY;
@@ -414,7 +383,6 @@
         }
       });
     });
-    
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -424,7 +392,6 @@
         }
       });
     });
-    
     Events.on(engine, 'afterUpdate', function() {
       if (!gameActive) return;
       if (ball.position.x < 0 || ball.position.x > render.options.width) {
@@ -432,13 +399,11 @@
         resetGame();
       }
     });
-    
     function resetRound() {
       Body.setPosition(ball, { x: 150, y: 500 });
       Body.setVelocity(ball, { x: 0, y: 0 });
       kickCount = 0;
     }
-    
     function resetGame() {
       const allBodies = Composite.allBodies(world);
       allBodies.forEach(body => {
@@ -451,7 +416,6 @@
       gameActive = true;
       resetRound();
     }
-    
   </script>
 </body>
 </html>
