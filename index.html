@@ -19,7 +19,7 @@
     #gameContainer {
       position: relative;
       width: 100%;
-      min-height: 640px;
+      min-height: 650px;
       background: #087E3B;
     }
     /* The Matter.js game canvas */
@@ -40,7 +40,7 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard container inside the game area, positioned at 60px from the top */
+    /* Scoreboard container inside the game area, positioned at 60px from top */
     #scoreboardContainer {
       position: absolute;
       top: 60px;
@@ -58,7 +58,7 @@
       z-index: 3;
       pointer-events: none;
     }
-    /* New Game button styling */
+    /* New Game button styling (absolutely positioned over the game area) */
     #newGameButton {
       position: absolute;
       display: none;
@@ -75,9 +75,9 @@
 </head>
 <body>
   <div id="gameContainer">
-    <canvas id="gameCanvas" width="800" height="640"></canvas>
+    <canvas id="gameCanvas" width="800" height="650"></canvas>
     <!-- SVG overlay for field markings -->
-    <svg id="fieldOverlay" viewBox="0 0 800 640" preserveAspectRatio="none">
+    <svg id="fieldOverlay" viewBox="0 0 800 650" preserveAspectRatio="none">
       <!-- Endzone boundaries drawn from y=0 to y=600 -->
       <line x1="80" y1="0" x2="80" y2="600" stroke="white" stroke-width="2"/>
       <line x1="720" y1="0" x2="720" y2="600" stroke="white" stroke-width="2"/>
@@ -101,32 +101,24 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Bottom yard markers placed below the yard lines at y=630 -->
-      <text x="144" y="630" fill="white" font-size="24" text-anchor="middle">10</text>
-      <text x="208" y="630" fill="white" font-size="24" text-anchor="middle">20</text>
-      <text x="272" y="630" fill="white" font-size="24" text-anchor="middle">30</text>
-      <text x="336" y="630" fill="white" font-size="24" text-anchor="middle">40</text>
-      <text x="400" y="630" fill="white" font-size="24" text-anchor="middle">50</text>
-      <text x="464" y="630" fill="white" font-size="24" text-anchor="middle">60</text>
-      <text x="528" y="630" fill="white" font-size="24" text-anchor="middle">70</text>
-      <text x="592" y="630" fill="white" font-size="24" text-anchor="middle">80</text>
-      <text x="656" y="630" fill="white" font-size="24" text-anchor="middle">90</text>
+      <!-- Bottom yard markers placed below the yard lines at y=640 -->
+      <text x="144" y="640" fill="white" font-size="24" text-anchor="middle">10</text>
+      <text x="208" y="640" fill="white" font-size="24" text-anchor="middle">20</text>
+      <text x="272" y="640" fill="white" font-size="24" text-anchor="middle">30</text>
+      <text x="336" y="640" fill="white" font-size="24" text-anchor="middle">40</text>
+      <text x="400" y="640" fill="white" font-size="24" text-anchor="middle">50</text>
+      <text x="464" y="640" fill="white" font-size="24" text-anchor="middle">60</text>
+      <text x="528" y="640" fill="white" font-size="24" text-anchor="middle">70</text>
+      <text x="592" y="640" fill="white" font-size="24" text-anchor="middle">80</text>
+      <text x="656" y="640" fill="white" font-size="24" text-anchor="middle">90</text>
       <!-- Revised Goal Posts:
-           We want two vertical posts connected by a horizontal crossbar,
-           with the center vertical line trimmed so that only the section that extends
-           upward from the crossbar is drawn (and not the portion between the two vertical posts).
-           Here’s one approach:
-           - Draw two vertical posts at x=730 and x=770 from y=400 to y=600.
-           - Draw a horizontal crossbar from (730,600) to (770,600).
-           - Then draw the center vertical line from (750,600) upward to (750,400),
-             but remove the portion that lies between the two vertical posts.
-           In this implementation we simply draw the full center line (from 750,600 to 750,400)
-           and you may adjust the coordinates as desired.
-      -->
+           - Two vertical posts at x=730 and x=770 from y=400 to y=600.
+           - A horizontal crossbar from (730,600) to (770,600).
+           - A center vertical line drawn only below the crossbar from (750,600) down to (750,650). -->
       <line x1="730" y1="400" x2="730" y2="600" stroke="white" stroke-width="4"/>
       <line x1="770" y1="400" x2="770" y2="600" stroke="white" stroke-width="4"/>
       <line x1="730" y1="600" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <line x1="750" y1="600" x2="750" y2="400" stroke="white" stroke-width="4"/>
+      <line x1="750" y1="600" x2="750" y2="650" stroke="white" stroke-width="4"/>
     </svg>
     <!-- Scoreboard overlay inside the game container -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
@@ -143,7 +135,7 @@
       const container = document.getElementById('gameContainer');
       const winW = window.innerWidth;
       const winH = window.innerHeight;
-      const gameW = 800, gameH = 640;
+      const gameW = 800, gameH = 650;
       let scale;
       if (winW > winH) {
         scale = winH / gameH;
@@ -202,7 +194,7 @@
       engine: engine,
       options: {
         width: 800,
-        height: 640,
+        height: 650,
         wireframes: false,
         background: "transparent"
       }
