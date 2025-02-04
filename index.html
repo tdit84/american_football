@@ -82,7 +82,8 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels (Swapped: Left: SONYA, Right: EVA) with white fill and extra spacing -->
+      <!-- End Zone Labels with extra letter spacing and in white (swapped sides):
+           Left end zone: "SONYA" rotated –90°; Right end zone: "EVA" rotated 90° -->
       <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
       <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
       <!-- Field boundaries and yard lines from y=50 to y=600 -->
@@ -97,7 +98,7 @@
       <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
       <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
       <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers (values: 10,20,30,40,50,40,30,20,10) at y=30 -->
+      <!-- Top yard markers (10,20,30,40,50,40,30,20,10) at y=30 -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -273,11 +274,10 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
-    // Minimal change: Set the ball's fillStyle to "transparent" so the circle is not drawn.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      render: { fillStyle: "transparent" }
+      render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
 
