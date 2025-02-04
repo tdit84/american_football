@@ -2,15 +2,25 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Enable responsive design and standalone mode on iOS -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="manifest.json">
+  <!-- Responsive viewport -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emoji Football Kick Game</title>
   <style>
-    body { margin: 0; overflow: hidden; position: relative; }
-    canvas { display: block; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #87CEEB;
+    }
+    /* The canvas element is defined with a fixed internal size (800×600),
+       but scaled using CSS to fill the viewport. */
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      image-rendering: pixelated; /* Optional: improve appearance when scaled */
+    }
     /* New Game button styling */
     #newGameButton {
       position: absolute;
@@ -22,23 +32,9 @@
       display: none;
       z-index: 10;
     }
-    /* Instruction message styling for iOS users */
-    #iosInstruction {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      font-size: 16px;
-      color: #333;
-      background: rgba(255,255,255,0.8);
-      padding: 5px 10px;
-      border-radius: 4px;
-      z-index: 11;
-    }
   </style>
 </head>
 <body>
-  <!-- Instruction for iOS users -->
-  <div id="iosInstruction">For best fullscreen, add to home screen.</div>
   <!-- Canvas for the game -->
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <!-- New Game button -->
@@ -80,10 +76,10 @@
     
     // ----- Global Game Variables -----
     let score = 0;
-    let kickCount = 0;
-    let goalMessage = "";
-    let timeLeft = 30;
-    let gameActive = true;
+    let kickCount = 0;      
+    let goalMessage = "";   
+    let timeLeft = 30;      
+    let gameActive = true;  
     
     // Start the countdown timer.
     const timerInterval = setInterval(() => {
@@ -105,12 +101,14 @@
     });
     
     // ----- Create the Scene -----
+    // Ground (turf).
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
       render: { fillStyle: '#32CD32' }
     });
     Composite.add(world, ground);
     
+    // Obstacles (defenders).
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
       isStatic: true, 
       angle: Math.PI * 0.06, 
@@ -127,6 +125,7 @@
     });
     Composite.add(world, [obstacle1, obstacle2]);
     
+    // Goal area.
     const goal = Bodies.rectangle(750, 500, 80, 200, { 
       isStatic: true, 
       isSensor: true, 
@@ -134,6 +133,7 @@
     });
     Composite.add(world, goal);
     
+    // Football.
     const ballRadius = 20;
     const ball = Bodies.circle(150, 500, ballRadius, { 
       restitution: 0.6, 
@@ -151,18 +151,7 @@
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
       
-      if (isDragging && dragStart && dragCurrent && gameActive) {
-        context.strokeStyle = "red";
-        context.lineWidth = 3;
-        context.beginPath();
-        context.moveTo(ball.position.x, ball.position.y);
-        context.lineTo(dragCurrent.x, dragCurrent.y);
-        context.stroke();
-        
-        context.font = "75px serif";
-        context.fillText("👟", ball.position.x - 50, ball.position.y);
-      }
-      
+      // Display score and timer.
       if (gameActive) {
         context.font = "20px sans-serif";
         context.fillStyle = "black";
@@ -308,6 +297,7 @@
           setTimeout(() => { goalMessage = ""; }, 2000);
           resetRound();
           
+          // Create a new obstacle at a random location.
           let newX, newY;
           if (Math.random() < 0.5) {
             newX = Math.random() * (650 - 300) + 300;
