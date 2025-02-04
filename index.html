@@ -2,61 +2,92 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Responsive viewport -->
+  <!-- Set the viewport to device dimensions -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emoji Football Kick Game</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       overflow: hidden;
       background: #87CEEB;
+      height: 100%;
+      width: 100%;
     }
-    /* The canvas element is defined with a fixed internal size (800×600),
-       but scaled using CSS to fill the viewport. */
-    canvas {
+    /* Container to center the canvas */
+    #gameContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    /* The canvas element has an internal resolution of 800x600 */
+    #gameCanvas {
       display: block;
-      width: 100vw;
-      height: 100vh;
-      image-rendering: pixelated; /* Optional: improve appearance when scaled */
+      /* Default internal size; the JavaScript will override the CSS width/height and margins */
+      width: 800px;
+      height: 600px;
     }
     /* New Game button styling */
     #newGameButton {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      z-index: 10;
+      display: none;
       font-size: 24px;
       padding: 10px 20px;
-      display: none;
-      z-index: 10;
+      /* Centered by JavaScript if needed */
     }
   </style>
 </head>
 <body>
-  <!-- Canvas for the game -->
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
-  <!-- New Game button -->
-  <button id="newGameButton">New Game</button>
-  
-  <!-- Include Matter.js from a CDN -->
+  <div id="gameContainer">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <button id="newGameButton">New Game</button>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
-    // Module aliases.
-    const Engine    = Matter.Engine,
-          Render    = Matter.Render,
-          Runner    = Matter.Runner,
-          Bodies    = Matter.Bodies,
+    // --- Responsive Resize Function ---
+    // Game world is 800x600. We adjust the canvas CSS dimensions and margins
+    // based on orientation.
+    function resizeCanvas() {
+      const canvas = document.getElementById('gameCanvas');
+      const winW = window.innerWidth;
+      const winH = window.innerHeight;
+      const gameW = 800, gameH = 600;
+      let scale;
+      if (winW > winH) {
+        // Landscape mode: use full viewport height.
+        scale = winH / gameH;
+        canvas.style.width = (gameW * scale) + "px";
+        canvas.style.height = (gameH * scale) + "px";
+        // Center horizontally.
+        canvas.style.marginLeft = ((winW - gameW * scale) / 2) + "px";
+        canvas.style.marginTop = "0px";
+      } else {
+        // Portrait mode: use full viewport width.
+        scale = winW / gameW;
+        canvas.style.width = (gameW * scale) + "px";
+        canvas.style.height = (gameH * scale) + "px";
+        // Center vertically.
+        canvas.style.marginTop = ((winH - gameH * scale) / 2) + "px";
+        canvas.style.marginLeft = "0px";
+      }
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    
+    // --- Matter.js Setup ---
+    const Engine = Matter.Engine,
+          Render = Matter.Render,
+          Runner = Matter.Runner,
+          Bodies = Matter.Bodies,
           Composite = Matter.Composite,
-          Body      = Matter.Body,
-          Events    = Matter.Events;
+          Body = Matter.Body,
+          Events = Matter.Events;
     
-    // Create the physics engine and world.
     const engine = Engine.create();
-    const world  = engine.world;
+    const world = engine.world;
     
-    // Set up the canvas and renderer.
     const canvas = document.getElementById('gameCanvas');
     const render = Render.create({
       canvas: canvas,
@@ -70,25 +101,24 @@
     });
     Render.run(render);
     
-    // Create a runner.
     const runner = Runner.create();
     Runner.run(runner, engine);
     
-    // ----- Global Game Variables -----
+    // --- Global Game Variables ---
     let score = 0;
-    let kickCount = 0;      
-    let goalMessage = "";   
-    let timeLeft = 30;      
-    let gameActive = true;  
+    let kickCount = 0;
+    let goalMessage = "";
+    let timeLeft = 30;
+    let gameActive = true;
     
-    // Start the countdown timer.
+    // Countdown timer.
     const timerInterval = setInterval(() => {
       if (gameActive) {
         timeLeft--;
         if (timeLeft <= 0) {
           timeLeft = 0;
           gameActive = false;
-          showNewGameButton();
+          document.getElementById('newGameButton').style.display = "block";
         }
       }
     }, 1000);
@@ -100,8 +130,8 @@
       newGameButton.style.display = "none";
     });
     
-    // ----- Create the Scene -----
-    // Ground (turf).
+    // --- Create the Scene ---
+    // Ground (turf field).
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
       render: { fillStyle: '#32CD32' }
@@ -110,15 +140,15 @@
     
     // Obstacles (defenders).
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
-      isStatic: true, 
-      angle: Math.PI * 0.06, 
+      isStatic: true,
+      angle: Math.PI * 0.06,
       render: { fillStyle: '#8B4513' },
       isObstacle: true,
       isOriginal: true
     });
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
-      isStatic: true, 
-      angle: -Math.PI * 0.1, 
+      isStatic: true,
+      angle: -Math.PI * 0.1,
       render: { fillStyle: '#8B4513' },
       isObstacle: true,
       isOriginal: true
@@ -127,8 +157,8 @@
     
     // Goal area.
     const goal = Bodies.rectangle(750, 500, 80, 200, { 
-      isStatic: true, 
-      isSensor: true, 
+      isStatic: true,
+      isSensor: true,
       render: { fillStyle: 'rgba(0,0,0,0)' }
     });
     Composite.add(world, goal);
@@ -136,37 +166,37 @@
     // Football.
     const ballRadius = 20;
     const ball = Bodies.circle(150, 500, ballRadius, { 
-      restitution: 0.6, 
+      restitution: 0.6,
       density: 0.004,
       render: { fillStyle: '#ffffff' }
     });
     Composite.add(world, ball);
     
-    // ----- Custom Rendering -----
+    // --- Custom Rendering ---
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       
+      // Draw the football emoji.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
       
-      // Display score and timer.
+      // Draw score and timer.
       if (gameActive) {
         context.font = "20px sans-serif";
         context.fillStyle = "black";
         context.textAlign = "left";
         context.fillText("Score: " + score, 10, 30);
-        
         context.font = "20px sans-serif";
         context.fillStyle = "black";
         context.textAlign = "right";
-        context.fillText("Time: " + timeLeft, render.options.width - 10, 30);
+        context.fillText("Time: " + timeLeft, 790, 30);
       } else {
         context.font = "80px sans-serif";
         context.fillStyle = "black";
         context.textAlign = "center";
-        context.fillText("Final Score: " + score, render.options.width / 2, 100);
+        context.fillText("Final Score: " + score, 400, 100);
       }
       
       // Draw goal posts.
@@ -191,11 +221,11 @@
         context.font = "50px sans-serif";
         context.fillStyle = "red";
         context.textAlign = "center";
-        context.fillText(goalMessage, render.options.width / 2, 300);
+        context.fillText(goalMessage, 400, 300);
       }
     });
     
-    // ----- Interaction for the Kick -----
+    // --- Interaction for the Kick ---
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
@@ -210,12 +240,11 @@
     
     canvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
-      const mousePos = getCanvasPos(canvas, evt);
-      const dist = Math.hypot(mousePos.x - ball.position.x, mousePos.y - ball.position.y);
-      if (dist <= ballRadius) {
+      const pos = getCanvasPos(canvas, evt);
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius) {
         isDragging = true;
-        dragStart = mousePos;
-        dragCurrent = mousePos;
+        dragStart = pos;
+        dragCurrent = pos;
       }
     });
     
@@ -248,8 +277,7 @@
       evt.preventDefault();
       const touch = evt.touches[0];
       const pos = getCanvasPos(canvas, touch);
-      const dist = Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y);
-      if (dist <= ballRadius) {
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
@@ -284,7 +312,7 @@
       }
     });
     
-    // ----- Collision Events and Reset Functions -----
+    // --- Collision Events and Reset Functions ---
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -296,7 +324,6 @@
           goalMessage = "TOUCHDOWN!";
           setTimeout(() => { goalMessage = ""; }, 2000);
           resetRound();
-          
           // Create a new obstacle at a random location.
           let newX, newY;
           if (Math.random() < 0.5) {
@@ -353,10 +380,6 @@
       timeLeft = 30;
       gameActive = true;
       resetRound();
-    }
-    
-    function showNewGameButton() {
-      newGameButton.style.display = "block";
     }
     
   </script>
