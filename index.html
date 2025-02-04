@@ -273,7 +273,7 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
-    // Change the ball's fillStyle to transparent so only the football emoji is visible.
+    // Minimal change: Set the ball's fillStyle to "transparent" so the circle is not drawn.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
