@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
   <title>Emoji Football Kick Game</title>
   <style>
     body { margin: 0; overflow: hidden; position: relative; }
@@ -21,7 +22,7 @@
       display: none;
       z-index: 10;
     }
-    /* Fullscreen button styling */
+    /* Fullscreen button styling (for browsers that support it) */
     #fullscreenButton {
       position: absolute;
       bottom: 10px;
@@ -37,7 +38,7 @@
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <!-- New Game button -->
   <button id="newGameButton">New Game</button>
-  <!-- Fullscreen toggle button (works on browsers that support it) -->
+  <!-- Fullscreen toggle button (will work on browsers that support the Fullscreen API) -->
   <button id="fullscreenButton">Fullscreen</button>
   
   <!-- Include Matter.js from a CDN -->
@@ -76,10 +77,10 @@
     
     // ----- Global Game Variables -----
     let score = 0;
-    let kickCount = 0;      
-    let goalMessage = "";   
-    let timeLeft = 30;      
-    let gameActive = true;  
+    let kickCount = 0;
+    let goalMessage = "";
+    let timeLeft = 30;
+    let gameActive = true;
     
     // Start the countdown timer.
     const timerInterval = setInterval(() => {
@@ -100,7 +101,8 @@
       newGameButton.style.display = "none";
     });
     
-    // Fullscreen button functionality with vendor-prefixed methods.
+    // Fullscreen button functionality with vendor prefixes.
+    // (Note: iOS Safari does not support fullscreen on non‐video elements.)
     const fullscreenButton = document.getElementById('fullscreenButton');
     fullscreenButton.addEventListener('click', () => {
       if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
