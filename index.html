@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Viewport and iOS standalone mode meta tags -->
+  <!-- Enable responsive design and standalone mode on iOS -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -22,24 +22,27 @@
       display: none;
       z-index: 10;
     }
-    /* Fullscreen button styling (for browsers that support it) */
-    #fullscreenButton {
+    /* Instruction message styling for iOS users */
+    #iosInstruction {
       position: absolute;
-      bottom: 10px;
-      right: 10px;
+      top: 5px;
+      left: 5px;
       font-size: 16px;
-      padding: 8px 12px;
-      z-index: 10;
+      color: #333;
+      background: rgba(255,255,255,0.8);
+      padding: 5px 10px;
+      border-radius: 4px;
+      z-index: 11;
     }
   </style>
 </head>
 <body>
+  <!-- Instruction for iOS users -->
+  <div id="iosInstruction">For best fullscreen, add to home screen.</div>
   <!-- Canvas for the game -->
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <!-- New Game button -->
   <button id="newGameButton">New Game</button>
-  <!-- Fullscreen toggle button (will work on browsers that support the Fullscreen API) -->
-  <button id="fullscreenButton">Fullscreen</button>
   
   <!-- Include Matter.js from a CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -99,49 +102,6 @@
     newGameButton.addEventListener('click', () => {
       resetGame();
       newGameButton.style.display = "none";
-    });
-    
-    // Fullscreen button functionality with vendor prefixes.
-    // (Note: iOS Safari does not support fullscreen on non‐video elements.)
-    const fullscreenButton = document.getElementById('fullscreenButton');
-    fullscreenButton.addEventListener('click', () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-        const docElm = document.documentElement;
-        if (docElm.requestFullscreen) {
-          docElm.requestFullscreen();
-        } else if (docElm.mozRequestFullScreen) {
-          docElm.mozRequestFullScreen();
-        } else if (docElm.webkitRequestFullscreen) {
-          docElm.webkitRequestFullscreen();
-        } else if (docElm.msRequestFullscreen) {
-          docElm.msRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-          document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
-      }
-    });
-    
-    // Adjust canvas size when entering/exiting fullscreen.
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        render.options.width = window.innerWidth;
-        render.options.height = window.innerHeight;
-      } else {
-        canvas.width = 800;
-        canvas.height = 600;
-        render.options.width = 800;
-        render.options.height = 600;
-      }
     });
     
     // ----- Create the Scene -----
