@@ -78,20 +78,20 @@
     <canvas id="gameCanvas" width="800" height="650"></canvas>
     <!-- SVG overlay for field markings -->
     <svg id="fieldOverlay" viewBox="0 0 800 650" preserveAspectRatio="none">
-      <!-- Endzone boundaries drawn from y=0 to y=600 -->
-      <line x1="80" y1="0" x2="80" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="720" y1="0" x2="720" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Yard lines every 64 units drawn from y=0 to y=600 -->
-      <line x1="144" y1="0" x2="144" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="208" y1="0" x2="208" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="272" y1="0" x2="272" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="336" y1="0" x2="336" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="400" y1="0" x2="400" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="464" y1="0" x2="464" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="528" y1="0" x2="528" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="592" y1="0" x2="592" y2="600" stroke="white" stroke-width="2"/>
-      <line x1="656" y1="0" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers at y=30 -->
+      <!-- Endzone boundaries drawn from y=50 to y=600 -->
+      <line x1="80" y1="50" x2="80" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="720" y1="50" x2="720" y2="600" stroke="white" stroke-width="2"/>
+      <!-- Yard lines every 64 units drawn from y=50 to y=600 -->
+      <line x1="144" y1="50" x2="144" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="208" y1="50" x2="208" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="272" y1="50" x2="272" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="336" y1="50" x2="336" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="400" y1="50" x2="400" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="464" y1="50" x2="464" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
+      <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
+      <!-- Top yard markers remain at y=30 -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -101,7 +101,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Bottom yard markers placed below the yard lines at y=640 -->
+      <!-- Bottom yard markers placed at y=640 -->
       <text x="144" y="640" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="640" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="640" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -111,14 +111,14 @@
       <text x="528" y="640" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="640" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="640" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Revised Goal Posts:
+      <!-- Revised Goal Posts in yellow:
            - Two vertical posts at x=730 and x=770 from y=400 to y=600.
            - A horizontal crossbar from (730,600) to (770,600).
-           - A center vertical line drawn only below the crossbar from (750,600) down to (750,650). -->
-      <line x1="730" y1="400" x2="730" y2="600" stroke="white" stroke-width="4"/>
-      <line x1="770" y1="400" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <line x1="730" y1="600" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <line x1="750" y1="600" x2="750" y2="650" stroke="white" stroke-width="4"/>
+           - A center vertical line drawn only below the crossbar from (750,600) to (750,640). -->
+      <line x1="730" y1="400" x2="730" y2="600" stroke="yellow" stroke-width="4"/>
+      <line x1="770" y1="400" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
+      <line x1="730" y1="600" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
+      <line x1="750" y1="600" x2="750" y2="640" stroke="yellow" stroke-width="4"/>
     </svg>
     <!-- Scoreboard overlay inside the game container -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
@@ -188,7 +188,7 @@
     const world = engine.world;
     
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set background to transparent so the SVG overlay is visible.
+    // Set background to transparent so the SVG overlay shows.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
