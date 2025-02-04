@@ -82,8 +82,7 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels with extra letter spacing and in white (swapped sides):
-           Left end zone: "SONYA" rotated –90°; Right end zone: "EVA" rotated 90° -->
+      <!-- End Zone Labels (with extra letter spacing) -->
       <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
       <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
       <!-- Field boundaries and yard lines from y=50 to y=600 -->
@@ -274,10 +273,11 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
+    // Set the ball's fillStyle to "transparent" so the default circle is not drawn.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      render: { fillStyle: "#ffffff" }
+      render: { fillStyle: "transparent" }
     });
     Composite.add(world, ball);
 
