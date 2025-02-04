@@ -9,24 +9,24 @@
     html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
+      /* Allow vertical scrolling if needed in landscape mode */
+      overflow-y: auto;
       background: #87CEEB;
       height: 100%;
       width: 100%;
     }
-    /* Container to center the canvas */
+    /* Container to hold and center the canvas */
     #gameContainer {
       position: relative;
       width: 100%;
-      height: 100%;
-      overflow: hidden;
+      /* The height will adjust based on the canvas size */
+      min-height: 100%;
+      background: #87CEEB;
     }
-    /* The canvas element has an internal resolution of 800x600 */
+    /* The canvas has an internal resolution of 800x600.
+       Its CSS size will be set dynamically. */
     #gameCanvas {
       display: block;
-      /* Default internal size; the JavaScript will override the CSS width/height and margins */
-      width: 800px;
-      height: 600px;
     }
     /* New Game button styling */
     #newGameButton {
@@ -35,7 +35,7 @@
       display: none;
       font-size: 24px;
       padding: 10px 20px;
-      /* Centered by JavaScript if needed */
+      /* Its position will remain relative to the canvas container */
     }
   </style>
 </head>
@@ -47,34 +47,51 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
     // --- Responsive Resize Function ---
-    // Game world is 800x600. We adjust the canvas CSS dimensions and margins
-    // based on orientation.
+    // Fixed game world: 800x600.
+    // In landscape, we use the full viewport height and center horizontally.
+    // In portrait, we use the full viewport width and center vertically.
     function resizeCanvas() {
       const canvas = document.getElementById('gameCanvas');
+      const container = document.getElementById('gameContainer');
       const winW = window.innerWidth;
       const winH = window.innerHeight;
       const gameW = 800, gameH = 600;
       let scale;
       if (winW > winH) {
-        // Landscape mode: use full viewport height.
+        // Landscape: use full viewport height.
         scale = winH / gameH;
         canvas.style.width = (gameW * scale) + "px";
         canvas.style.height = (gameH * scale) + "px";
-        // Center horizontally.
+        // Center horizontally; top is at 0 so that user can scroll down if needed.
         canvas.style.marginLeft = ((winW - gameW * scale) / 2) + "px";
         canvas.style.marginTop = "0px";
+        // Set container height to the scaled canvas height.
+        container.style.height = (gameH * scale) + "px";
       } else {
-        // Portrait mode: use full viewport width.
+        // Portrait: use full viewport width.
         scale = winW / gameW;
         canvas.style.width = (gameW * scale) + "px";
         canvas.style.height = (gameH * scale) + "px";
         // Center vertically.
         canvas.style.marginTop = ((winH - gameH * scale) / 2) + "px";
         canvas.style.marginLeft = "0px";
+        container.style.height = winH + "px";
       }
+      // Store the scale factor on the canvas element for event coordinate conversion.
+      canvas.dataset.scale = scale;
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
+    
+    // --- Adjust getCanvasPos to account for scaling ---
+    function getCanvasPos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scale = parseFloat(canvas.dataset.scale) || 1;
+      return {
+        x: (evt.clientX - rect.left) / scale,
+        y: (evt.clientY - rect.top) / scale
+      };
+    }
     
     // --- Matter.js Setup ---
     const Engine = Matter.Engine,
@@ -131,42 +148,38 @@
     });
     
     // --- Create the Scene ---
-    // Ground (turf field).
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
       render: { fillStyle: '#32CD32' }
     });
     Composite.add(world, ground);
     
-    // Obstacles (defenders).
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
-      isStatic: true,
-      angle: Math.PI * 0.06,
+      isStatic: true, 
+      angle: Math.PI * 0.06, 
       render: { fillStyle: '#8B4513' },
       isObstacle: true,
       isOriginal: true
     });
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
-      isStatic: true,
-      angle: -Math.PI * 0.1,
+      isStatic: true, 
+      angle: -Math.PI * 0.1, 
       render: { fillStyle: '#8B4513' },
       isObstacle: true,
       isOriginal: true
     });
     Composite.add(world, [obstacle1, obstacle2]);
     
-    // Goal area.
     const goal = Bodies.rectangle(750, 500, 80, 200, { 
-      isStatic: true,
-      isSensor: true,
+      isStatic: true, 
+      isSensor: true, 
       render: { fillStyle: 'rgba(0,0,0,0)' }
     });
     Composite.add(world, goal);
     
-    // Football.
     const ballRadius = 20;
     const ball = Bodies.circle(150, 500, ballRadius, { 
-      restitution: 0.6,
+      restitution: 0.6, 
       density: 0.004,
       render: { fillStyle: '#ffffff' }
     });
@@ -176,13 +189,11 @@
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       
-      // Draw the football emoji.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
       
-      // Draw score and timer.
       if (gameActive) {
         context.font = "20px sans-serif";
         context.fillStyle = "black";
@@ -229,14 +240,6 @@
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
-    
-    function getCanvasPos(canvas, evt) {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
-      };
-    }
     
     canvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
