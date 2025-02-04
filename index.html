@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Add viewport meta tag to better control scaling on mobile devices -->
+  <!-- Viewport and iOS standalone mode meta tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Emoji Football Kick Game</title>
   <style>
     body { margin: 0; overflow: hidden; position: relative; }
@@ -35,7 +37,7 @@
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <!-- New Game button -->
   <button id="newGameButton">New Game</button>
-  <!-- Fullscreen toggle button -->
+  <!-- Fullscreen toggle button (works on browsers that support it) -->
   <button id="fullscreenButton">Fullscreen</button>
   
   <!-- Include Matter.js from a CDN -->
@@ -102,26 +104,24 @@
     const fullscreenButton = document.getElementById('fullscreenButton');
     fullscreenButton.addEventListener('click', () => {
       if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
-        // Request fullscreen using vendor prefixes.
         const docElm = document.documentElement;
         if (docElm.requestFullscreen) {
           docElm.requestFullscreen();
-        } else if (docElm.mozRequestFullScreen) { // Firefox
+        } else if (docElm.mozRequestFullScreen) {
           docElm.mozRequestFullScreen();
-        } else if (docElm.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        } else if (docElm.webkitRequestFullscreen) {
           docElm.webkitRequestFullscreen();
-        } else if (docElm.msRequestFullscreen) { // IE/Edge
+        } else if (docElm.msRequestFullscreen) {
           docElm.msRequestFullscreen();
         }
       } else {
-        // Exit fullscreen mode.
         if (document.exitFullscreen) {
           document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) { // Firefox
+        } else if (document.mozCancelFullScreen) {
           document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+        } else if (document.webkitExitFullscreen) {
           document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { // IE/Edge
+        } else if (document.msExitFullscreen) {
           document.msExitFullscreen();
         }
       }
@@ -130,13 +130,11 @@
     // Adjust canvas size when entering/exiting fullscreen.
     document.addEventListener('fullscreenchange', () => {
       if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
-        // Set canvas to full viewport size.
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         render.options.width = window.innerWidth;
         render.options.height = window.innerHeight;
       } else {
-        // Revert to default dimensions.
         canvas.width = 800;
         canvas.height = 600;
         render.options.width = 800;
