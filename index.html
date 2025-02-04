@@ -14,7 +14,7 @@
       height: 100%;
       width: 100%;
     }
-    /* Container for the canvases and overlay */
+    /* Container for the game canvas and SVG overlay */
     #gameContainer {
       position: relative;
       width: 100%;
@@ -59,9 +59,8 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <!-- SVG overlay for field markings -->
     <svg id="fieldOverlay" viewBox="0 0 800 600" preserveAspectRatio="none">
-      <!-- Left endzone boundary -->
+      <!-- Endzone boundaries -->
       <line x1="80" y1="0" x2="80" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Right endzone boundary -->
       <line x1="720" y1="0" x2="720" y2="600" stroke="white" stroke-width="2"/>
       <!-- Yard lines every 64 units between x=80 and 720 -->
       <line x1="144" y1="0" x2="144" y2="600" stroke="white" stroke-width="2"/>
@@ -93,12 +92,14 @@
       <text x="528" y="570" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="570" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="570" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Goal posts for the scoring area -->
-      <!-- The goal sensor (in Matter.js) is centered at (750,480) with width 80 and height 200,
-           so its top edge is at 480-100 = 380 and bottom edge at 480+100 = 580. -->
-      <line x1="730" y1="380" x2="730" y2="580" stroke="white" stroke-width="4"/>
-      <line x1="770" y1="380" x2="770" y2="580" stroke="white" stroke-width="4"/>
-      <line x1="730" y1="390" x2="770" y2="390" stroke="white" stroke-width="4"/>
+      <!-- Revised Goal Posts -->
+      <!-- Draw horizontal crossbar at top of goal sensor (y=380) -->
+      <line x1="730" y1="380" x2="770" y2="380" stroke="white" stroke-width="4"/>
+      <!-- Draw center vertical post at x=750 from crossbar down to bottom (y=600) -->
+      <line x1="750" y1="380" x2="750" y2="600" stroke="white" stroke-width="4"/>
+      <!-- Optionally, draw small vertical markers at the sides of the crossbar -->
+      <line x1="730" y1="380" x2="730" y2="390" stroke="white" stroke-width="4"/>
+      <line x1="770" y1="380" x2="770" y2="390" stroke="white" stroke-width="4"/>
     </svg>
     <button id="newGameButton">New Game</button>
   </div>
@@ -165,7 +166,7 @@
     const world = engine.world;
     
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set Matter.js renderer background to transparent so the SVG overlay shows.
+    // Set background to transparent so the SVG overlay is visible.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
@@ -188,10 +189,10 @@
     let timeLeft = 30;
     let gameActive = true;
     
-    // --- Shift the game upward by 20 pixels ---
-    const yOffset = 20;
+    // --- Shift the game upward by 40 pixels (yOffset) ---
+    const yOffset = 40;
     
-    // Countdown timer.
+    // --- Countdown Timer ---
     const timerInterval = setInterval(() => {
       if (gameActive) {
         timeLeft--;
@@ -207,22 +208,22 @@
       }
     }, 1000);
     
-    // New Game button functionality.
+    // --- New Game Button ---
     const newGameButton = document.getElementById('newGameButton');
     newGameButton.addEventListener('click', () => {
       resetGame();
       newGameButton.style.display = "none";
     });
     
-    // --- Create the Scene ---
-    // Ground – shifted upward by yOffset.
+    // --- Create the Scene (with yOffset applied) ---
+    // Ground.
     const ground = Bodies.rectangle(400, 590 - yOffset, 810, 20, { 
       isStatic: true,
       render: { fillStyle: "#087E3B" }
     });
     Composite.add(world, ground);
     
-    // Obstacles – shifted upward.
+    // Obstacles.
     const obstacle1 = Bodies.rectangle(400, 500 - yOffset, 100, 20, { 
       isStatic: true, 
       angle: Math.PI * 0.06, 
@@ -239,7 +240,7 @@
     });
     Composite.add(world, [obstacle1, obstacle2]);
     
-    // Goal area – shifted upward.
+    // Goal area.
     const goal = Bodies.rectangle(750, 500 - yOffset, 80, 200, { 
       isStatic: true, 
       isSensor: true, 
@@ -247,7 +248,7 @@
     });
     Composite.add(world, goal);
     
-    // Football – shifted upward.
+    // Football.
     const ballRadius = 20;
     const ball = Bodies.circle(150, 500 - yOffset, ballRadius, { 
       restitution: 0.6, 
@@ -260,7 +261,7 @@
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       
-      // Draw the football emoji on the ball.
+      // Draw football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
@@ -278,13 +279,11 @@
       }
       
       if (gameActive) {
-        // Draw in-game score and time in large white text near the bottom.
-        context.font = "28px sans-serif";
+        // Draw a centered scoreboard at the top.
+        context.font = "32px sans-serif";
         context.fillStyle = "white";
-        context.textAlign = "left";
-        context.fillText("Score: " + score, 10, 550);
-        context.textAlign = "right";
-        context.fillText("Time: " + timeLeft, 790, 550);
+        context.textAlign = "center";
+        context.fillText("Score: " + score + "   Time: " + timeLeft, 400, 50);
       } else {
         // Draw final score centered.
         context.font = "64px sans-serif";
