@@ -2,16 +2,15 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Set the viewport to device dimensions -->
+  <!-- Set the viewport for responsive design -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emoji Football Kick Game</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      /* Allow vertical scrolling if needed */
-      overflow-y: auto;
-      background: #87CEEB;
+      overflow-y: auto; /* Allow scrolling if needed */
+      background: #087E3B; /* Dark green typical for a football field */
       height: 100%;
       width: 100%;
     }
@@ -19,23 +18,24 @@
     #gameContainer {
       position: relative;
       width: 100%;
-      /* Set min-height to ensure the container is at least as tall as the viewport */
       min-height: 100vh;
-      background: #87CEEB;
+      background: #087E3B;
     }
-    /* The canvas has an internal resolution of 800x600;
-       its CSS size and margins will be adjusted via JavaScript. */
+    /* The canvas has an internal resolution of 800x600 */
     #gameCanvas {
       display: block;
     }
-    /* New Game button styling */
+    /* New Game button styling; initially hidden */
     #newGameButton {
       position: absolute;
-      z-index: 10;
       display: none;
-      font-size: 24px;
-      padding: 10px 20px;
-      /* Its positioning remains relative to the container */
+      font-size: 32px;
+      padding: 15px 30px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -44,13 +44,13 @@
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <button id="newGameButton">New Game</button>
   </div>
+  <!-- Include Matter.js from a CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
     // --- Responsive Resize Function ---
-    // The fixed game world is 800x600.
-    // In landscape, we use the full viewport height and center the canvas horizontally.
-    // In portrait, we use the full viewport width and center vertically.
-    // The computed scale factor is stored as a data attribute on the canvas.
+    // Fixed game world: 800x600.
+    // In landscape, use full viewport height; in portrait, full viewport width.
+    // The computed scale factor is stored on the canvas.
     function resizeCanvas() {
       const canvas = document.getElementById('gameCanvas');
       const container = document.getElementById('gameContainer');
@@ -63,22 +63,18 @@
         scale = winH / gameH;
         canvas.style.width = (gameW * scale) + "px";
         canvas.style.height = (gameH * scale) + "px";
-        // Center horizontally.
         canvas.style.marginLeft = ((winW - gameW * scale) / 2) + "px";
         canvas.style.marginTop = "0px";
-        // Ensure container height is the scaled canvas height.
         container.style.height = (gameH * scale) + "px";
       } else {
         // Portrait: use full viewport width.
         scale = winW / gameW;
         canvas.style.width = (gameW * scale) + "px";
         canvas.style.height = (gameH * scale) + "px";
-        // Center vertically.
         canvas.style.marginTop = ((winH - gameH * scale) / 2) + "px";
         canvas.style.marginLeft = "0px";
         container.style.height = winH + "px";
       }
-      // Store the scale factor for converting event coordinates.
       canvas.dataset.scale = scale;
     }
     window.addEventListener('resize', resizeCanvas);
@@ -93,6 +89,41 @@
         y: (evt.clientY - rect.top) / scale
       };
     }
+    
+    // --- Draw Field Markings in beforeRender ---
+    // This draws the endzones, yard lines every 10 yards, and yard markers.
+    Matter.Events.on(render, 'beforeRender', function() {
+      const context = render.context;
+      // Save context state.
+      context.save();
+      // Clear background (we set a field-green background in CSS, but we draw field lines here).
+      // Draw left endzone.
+      context.fillStyle = "#00338D"; // Blue endzone
+      context.fillRect(0, 0, 80, 600);
+      // Draw right endzone.
+      context.fillStyle = "#CE1126"; // Red endzone
+      context.fillRect(720, 0, 80, 600);
+      // Draw main field background.
+      context.fillStyle = "#087E3B";
+      context.fillRect(80, 0, 640, 600);
+      // Draw yard lines every 64 units in the main field (10-yard increments).
+      context.strokeStyle = "white";
+      context.lineWidth = 2;
+      for (let n = 1; n < 10; n++) {
+        let x = 80 + n * 64;
+        context.beginPath();
+        context.moveTo(x, 0);
+        context.lineTo(x, 600);
+        context.stroke();
+        // Draw yard marker at top.
+        context.font = "24px sans-serif";
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.fillText(n*10, x, 30);
+      }
+      // Restore context state.
+      context.restore();
+    });
     
     // --- Matter.js Setup ---
     const Engine = Matter.Engine,
@@ -114,7 +145,7 @@
         width: 800,
         height: 600,
         wireframes: false,
-        background: '#87CEEB'
+        background: "transparent" // We draw the field ourselves.
       }
     });
     Render.run(render);
@@ -136,7 +167,12 @@
         if (timeLeft <= 0) {
           timeLeft = 0;
           gameActive = false;
-          document.getElementById('newGameButton').style.display = "block";
+          // Reposition the New Game button to below the final score.
+          const btn = document.getElementById('newGameButton');
+          btn.style.display = "block";
+          btn.style.left = "50%";
+          btn.style.top = "65%";
+          btn.style.transform = "translate(-50%, -50%)";
         }
       }
     }, 1000);
@@ -149,10 +185,10 @@
     });
     
     // --- Create the Scene ---
-    // Ground (turf field).
+    // Ground (turf field) – although our field is drawn in beforeRender.
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
-      render: { fillStyle: '#32CD32' }
+      render: { fillStyle: "#087E3B" }
     });
     Composite.add(world, ground);
     
@@ -160,14 +196,14 @@
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
       isStatic: true, 
       angle: Math.PI * 0.06, 
-      render: { fillStyle: '#8B4513' },
+      render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
       isStatic: true, 
       angle: -Math.PI * 0.1, 
-      render: { fillStyle: '#8B4513' },
+      render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
@@ -177,7 +213,7 @@
     const goal = Bodies.rectangle(750, 500, 80, 200, { 
       isStatic: true, 
       isSensor: true, 
-      render: { fillStyle: 'rgba(0,0,0,0)' }
+      render: { fillStyle: "rgba(0,0,0,0)" }
     });
     Composite.add(world, goal);
     
@@ -186,72 +222,34 @@
     const ball = Bodies.circle(150, 500, ballRadius, { 
       restitution: 0.6, 
       density: 0.004,
-      render: { fillStyle: '#ffffff' }
+      render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
     
-    // --- Custom Rendering ---
+    // --- Custom Rendering for Game Info ---
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       
-      // Draw the football emoji.
+      // Draw the football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
       
-      // Draw the drag indicator if dragging.
-      if (isDragging && dragStart && dragCurrent && gameActive) {
-        context.strokeStyle = "red";
-        context.lineWidth = 3;
-        context.beginPath();
-        context.moveTo(ball.position.x, ball.position.y);
-        context.lineTo(dragCurrent.x, dragCurrent.y);
-        context.stroke();
-        context.font = "75px serif";
-        context.fillText("👟", ball.position.x - 50, ball.position.y);
-      }
-      
-      // Draw score and timer.
       if (gameActive) {
-        context.font = "20px sans-serif";
-        context.fillStyle = "black";
+        // Draw current score and time in large white text at the lower part of the field.
+        context.font = "28px sans-serif";
+        context.fillStyle = "white";
         context.textAlign = "left";
-        context.fillText("Score: " + score, 10, 30);
-        context.font = "20px sans-serif";
-        context.fillStyle = "black";
+        context.fillText("Score: " + score, 10, 550);
         context.textAlign = "right";
-        context.fillText("Time: " + timeLeft, 790, 30);
+        context.fillText("Time: " + timeLeft, 790, 550);
       } else {
-        context.font = "80px sans-serif";
-        context.fillStyle = "black";
+        // Draw final score centered on the screen.
+        context.font = "64px sans-serif";
+        context.fillStyle = "white";
         context.textAlign = "center";
-        context.fillText("Final Score: " + score, 400, 100);
-      }
-      
-      // Draw goal posts.
-      context.strokeStyle = "white";
-      context.lineWidth = 5;
-      context.beginPath();
-      context.moveTo(goal.position.x - 30, goal.position.y - 100);
-      context.lineTo(goal.position.x + 30, goal.position.y - 100);
-      context.stroke();
-      
-      context.beginPath();
-      context.moveTo(goal.position.x - 30, goal.position.y - 100);
-      context.lineTo(goal.position.x - 30, goal.position.y + 100);
-      context.stroke();
-      
-      context.beginPath();
-      context.moveTo(goal.position.x + 30, goal.position.y - 100);
-      context.lineTo(goal.position.x + 30, goal.position.y + 100);
-      context.stroke();
-      
-      if (goalMessage) {
-        context.font = "50px sans-serif";
-        context.fillStyle = "red";
-        context.textAlign = "center";
-        context.fillText(goalMessage, 400, 300);
+        context.fillText("Final Score: " + score, 400, 300);
       }
     });
     
@@ -358,7 +356,7 @@
           const newObstacle = Bodies.rectangle(newX, newY, 100, 20, {
             isStatic: true,
             angle: Math.PI * (Math.random() * 0.3 - 0.15),
-            render: { fillStyle: '#8B4513' },
+            render: { fillStyle: "#8B4513" },
             isObstacle: true,
             isNewObstacle: true
           });
