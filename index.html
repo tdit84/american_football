@@ -98,22 +98,38 @@
       newGameButton.style.display = "none";
     });
     
-    // Fullscreen button functionality.
+    // Fullscreen button functionality with vendor-prefixed methods.
     const fullscreenButton = document.getElementById('fullscreenButton');
     fullscreenButton.addEventListener('click', () => {
-      // Toggle full screen mode.
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.error("Error attempting to enable full-screen mode:", err);
-        });
+      if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+        // Request fullscreen using vendor prefixes.
+        const docElm = document.documentElement;
+        if (docElm.requestFullscreen) {
+          docElm.requestFullscreen();
+        } else if (docElm.mozRequestFullScreen) { // Firefox
+          docElm.mozRequestFullScreen();
+        } else if (docElm.webkitRequestFullscreen) { // Chrome, Safari and Opera
+          docElm.webkitRequestFullscreen();
+        } else if (docElm.msRequestFullscreen) { // IE/Edge
+          docElm.msRequestFullscreen();
+        }
       } else {
-        document.exitFullscreen();
+        // Exit fullscreen mode.
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+          document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+          document.msExitFullscreen();
+        }
       }
     });
     
-    // Optionally, adjust canvas size when entering/exiting fullscreen.
+    // Adjust canvas size when entering/exiting fullscreen.
     document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
+      if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
         // Set canvas to full viewport size.
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -319,7 +335,7 @@
       }
     });
     
-    // ----- Collision Events and Reset Functions (unchanged) -----
+    // ----- Collision Events and Reset Functions -----
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
