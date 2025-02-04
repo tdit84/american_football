@@ -40,7 +40,7 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard container inside the game area, positioned at 60px from top */
+    /* Scoreboard container positioned inside the game area */
     #scoreboardContainer {
       position: absolute;
       top: 60px;
@@ -58,7 +58,7 @@
       z-index: 3;
       pointer-events: none;
     }
-    /* New Game button styling (absolutely positioned over the game area) */
+    /* New Game button styling */
     #newGameButton {
       position: absolute;
       display: none;
@@ -101,7 +101,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Bottom yard markers placed below the yard lines at y=630 -->
+      <!-- Bottom yard markers placed under the yard lines at y=630 -->
       <text x="144" y="630" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="630" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="630" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -111,20 +111,22 @@
       <text x="528" y="630" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="630" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="630" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Revised Goal Posts: Draw two vertical posts and a horizontal crossbar, with a center post extending downward -->
-      <!-- Vertical posts: at x=730 and x=770 from y=400 to y=600 -->
+      <!-- Revised Goal Posts: Draw two vertical posts and a horizontal crossbar
+           with no center vertical post.
+           The goal sensor remains centered at (750,500) with a height of 200 (top=400, bottom=600).
+           We draw vertical posts at x=730 and x=770 from y=400 to y=600,
+           and the horizontal crossbar at y=600 from x=730 to x=770. -->
       <line x1="730" y1="400" x2="730" y2="600" stroke="white" stroke-width="4"/>
       <line x1="770" y1="400" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <!-- Horizontal crossbar connecting them at y=400 -->
-      <line x1="730" y1="400" x2="770" y2="400" stroke="white" stroke-width="4"/>
-      <!-- Center vertical post extending downward from the center of the crossbar -->
-      <line x1="750" y1="400" x2="750" y2="640" stroke="white" stroke-width="4"/>
+      <line x1="730" y1="600" x2="770" y2="600" stroke="white" stroke-width="4"/>
     </svg>
     <!-- Scoreboard overlay inside the game container -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
     <!-- New Game button (absolutely positioned over the game area) -->
     <button id="newGameButton">New Game</button>
   </div>
+  <!-- Scoreboard container below the game area (if desired, you could move it here instead) -->
+  <!-- <div id="scoreboardContainer">Score: 0   Time: 30</div> -->
   <!-- Include Matter.js from a CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
@@ -165,7 +167,7 @@
     window.addEventListener('resize', resizeCanvases);
     resizeCanvases();
     
-    // --- Adjust getCanvasPos to account for scaling ---
+    // --- Adjust getCanvasPos for scaling ---
     function getCanvasPos(canvas, evt) {
       const rect = canvas.getBoundingClientRect();
       const scale = parseFloat(canvas.dataset.scale) || 1;
@@ -188,7 +190,7 @@
     const world = engine.world;
     
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set background to transparent so the SVG overlay shows.
+    // Set background to transparent so the SVG overlay is visible.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
