@@ -4,14 +4,6 @@
   <meta charset="utf-8">
   <!-- Responsive viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Open Graph Meta Tags for shareable image -->
-  <meta property="og:title" content="American Football">
-  <meta property="og:description" content="Play American Football!">
-  <meta property="og:image" content="https://{username}.github.io/{repo}/American_football_website_image.png">
-  <meta property="og:url" content="https://{username}.github.io/{repo}/">
-  <meta property="og:type" content="website">
-  
   <title>Emoji Football Kick Game</title>
   <style>
     html, body {
@@ -340,7 +332,7 @@
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
-      // Expand the touch area: allow kick trigger if within 9 * ballRadius.
+      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
@@ -374,7 +366,7 @@
       evt.preventDefault();
       const touch = evt.touches[0];
       const pos = getCanvasPos(gameCanvas, touch);
-      // Expand the touch area: allow kick trigger if within 9 * ballRadius.
+      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
