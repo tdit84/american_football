@@ -82,7 +82,7 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels (with extra letter spacing) -->
+      <!-- End Zone Labels with extra letter spacing in white -->
       <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
       <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
       <!-- Field boundaries and yard lines from y=50 to y=600 -->
@@ -238,7 +238,7 @@
       document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
     });
 
-    // Create the Scene (no vertical shift)
+    // Create the Scene
     const ground = Bodies.rectangle(400, 590, 810, 20, {
       isStatic: true,
       render: { fillStyle: "#087E3B" }
@@ -273,7 +273,7 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
-    // Set the ball's fillStyle to "transparent" so the default circle is not drawn.
+    // Set the ball's fillStyle to "transparent" so that only the football emoji is drawn.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
@@ -284,11 +284,15 @@
     // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-      // Draw the football emoji on the ball.
+      // Save the context state.
+      context.save();
+      // Explicitly set fillStyle so that the football emoji is visible.
+      context.fillStyle = "black";
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
+      context.restore();
       // Draw drag indicator if active.
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
