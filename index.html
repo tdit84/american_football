@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Set viewport for responsive design -->
+  <!-- Responsive viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Emoji Football Kick Game</title>
   <style>
@@ -10,7 +10,7 @@
       margin: 0;
       padding: 0;
       overflow-y: auto;
-      background: #087E3B; /* fallback field green */
+      background: #087E3B; /* Field green */
       height: 100%;
       width: 100%;
     }
@@ -48,9 +48,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script>
     // --- Responsive Resize Function ---
-    // Fixed game world is 800x600.
-    // In landscape: use full viewport height and center horizontally.
-    // In portrait: use full viewport width and center vertically.
+    // Our fixed game world is 800x600.
+    // In landscape: use full viewport height; in portrait: full viewport width.
     // Store the computed scale factor on the canvas.
     function resizeCanvas() {
       const canvas = document.getElementById('gameCanvas');
@@ -91,35 +90,31 @@
       };
     }
     
-    // --- Draw Field Markings in beforeRender ---
-    // Draw blue left endzone, red right endzone, main green field,
-    // white yard lines every 64 units in the 640-unit main field, and yard markers.
+    // --- Draw Field Markings (Minor Change) ---
+    // This beforeRender event draws minimal field markings:
+    // Two vertical lines at x = 80 and x = 720, and white yard lines every 64 units in between.
     Matter.Events.on(render, 'beforeRender', function() {
       const context = render.context;
       context.save();
-      // Draw left endzone.
-      context.fillStyle = "#00338D"; // Blue
-      context.fillRect(0, 0, 80, 600);
-      // Draw right endzone.
-      context.fillStyle = "#CE1126"; // Red
-      context.fillRect(720, 0, 80, 600);
-      // Draw main field background.
-      context.fillStyle = "#087E3B";
-      context.fillRect(80, 0, 640, 600);
-      // Draw yard lines and markers.
       context.strokeStyle = "white";
       context.lineWidth = 2;
+      // Draw left endzone boundary at x = 80.
+      context.beginPath();
+      context.moveTo(80, 0);
+      context.lineTo(80, 600);
+      context.stroke();
+      // Draw right endzone boundary at x = 720.
+      context.beginPath();
+      context.moveTo(720, 0);
+      context.lineTo(720, 600);
+      context.stroke();
+      // Draw yard lines every 64 units in the main field (from x = 80 to 720).
       for (let n = 1; n < 10; n++) {
         let x = 80 + n * 64;
         context.beginPath();
         context.moveTo(x, 0);
         context.lineTo(x, 600);
         context.stroke();
-        // Draw yard marker at the top.
-        context.font = "24px sans-serif";
-        context.fillStyle = "white";
-        context.textAlign = "center";
-        context.fillText(n * 10, x, 30);
       }
       context.restore();
     });
@@ -137,7 +132,7 @@
     const world = engine.world;
     
     const canvas = document.getElementById('gameCanvas');
-    // Set the background to transparent so that our field drawn in beforeRender is visible.
+    // Use the field-green background so our markings show.
     const render = Render.create({
       canvas: canvas,
       engine: engine,
@@ -145,7 +140,7 @@
         width: 800,
         height: 600,
         wireframes: false,
-        background: "transparent"
+        background: "#087E3B"
       }
     });
     Render.run(render);
@@ -167,8 +162,6 @@
         if (timeLeft <= 0) {
           timeLeft = 0;
           gameActive = false;
-          // Position final score will be drawn by afterRender.
-          // Reposition the New Game button to be centered below the final score.
           const btn = document.getElementById('newGameButton');
           btn.style.display = "block";
           btn.style.left = "50%";
@@ -186,24 +179,24 @@
     });
     
     // --- Create the Scene ---
-    // Ground – though our field is drawn in beforeRender.
+    // Ground.
     const ground = Bodies.rectangle(400, 590, 810, 20, { 
       isStatic: true,
       render: { fillStyle: "#087E3B" }
     });
     Composite.add(world, ground);
     
-    // Obstacles (defenders).
+    // Obstacles.
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
-      isStatic: true,
-      angle: Math.PI * 0.06,
+      isStatic: true, 
+      angle: Math.PI * 0.06, 
       render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
-      isStatic: true,
-      angle: -Math.PI * 0.1,
+      isStatic: true, 
+      angle: -Math.PI * 0.1, 
       render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
@@ -212,8 +205,8 @@
     
     // Goal area.
     const goal = Bodies.rectangle(750, 500, 80, 200, { 
-      isStatic: true,
-      isSensor: true,
+      isStatic: true, 
+      isSensor: true, 
       render: { fillStyle: "rgba(0,0,0,0)" }
     });
     Composite.add(world, goal);
@@ -221,7 +214,7 @@
     // Football.
     const ballRadius = 20;
     const ball = Bodies.circle(150, 500, ballRadius, { 
-      restitution: 0.6,
+      restitution: 0.6, 
       density: 0.004,
       render: { fillStyle: "#ffffff" }
     });
@@ -231,13 +224,13 @@
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       
-      // Draw the football emoji on the ball.
+      // Draw football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
       
-      // If dragging, draw a red line (force indicator) and shoe emoji.
+      // If dragging, draw red line and shoe emoji.
       if (isDragging && dragStart && dragCurrent && gameActive) {
         context.strokeStyle = "red";
         context.lineWidth = 3;
@@ -250,7 +243,7 @@
       }
       
       if (gameActive) {
-        // Draw in-game score and timer in large white text near the bottom.
+        // Draw in-game score and timer.
         context.font = "28px sans-serif";
         context.fillStyle = "white";
         context.textAlign = "left";
@@ -258,7 +251,7 @@
         context.textAlign = "right";
         context.fillText("Time: " + timeLeft, 790, 550);
       } else {
-        // Draw final score centered on the screen.
+        // Draw final score centered.
         context.font = "64px sans-serif";
         context.fillStyle = "white";
         context.textAlign = "center";
@@ -357,7 +350,7 @@
           goalMessage = "TOUCHDOWN!";
           setTimeout(() => { goalMessage = ""; }, 2000);
           resetRound();
-          // Create a new obstacle at a random location.
+          // Create a new obstacle.
           let newX, newY;
           if (Math.random() < 0.5) {
             newX = Math.random() * (650 - 300) + 300;
