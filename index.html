@@ -82,7 +82,7 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels with extra letter spacing in white -->
+      <!-- End Zone Labels (Swapped: Left: SONYA, Right: EVA) with white fill and extra spacing -->
       <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
       <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
       <!-- Field boundaries and yard lines from y=50 to y=600 -->
@@ -97,7 +97,7 @@
       <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
       <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
       <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers (10,20,30,40,50,40,30,20,10) at y=30 -->
+      <!-- Top yard markers (values: 10,20,30,40,50,40,30,20,10) at y=30 -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -238,7 +238,7 @@
       document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
     });
 
-    // Create the Scene
+    // Create the Scene (no vertical shift)
     const ground = Bodies.rectangle(400, 590, 810, 20, {
       isStatic: true,
       render: { fillStyle: "#087E3B" }
@@ -273,7 +273,7 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
-    // Set the ball's fillStyle to "transparent" so that only the football emoji is drawn.
+    // Change the ball's fillStyle to transparent so only the football emoji is visible.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
@@ -284,15 +284,11 @@
     // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-      // Save the context state.
-      context.save();
-      // Explicitly set fillStyle so that the football emoji is visible.
-      context.fillStyle = "black";
+      // Draw the football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-      context.restore();
       // Draw drag indicator if active.
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
