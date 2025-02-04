@@ -40,10 +40,10 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard container inside the game area */
+    /* Scoreboard container inside the game area, positioned at 60px from top */
     #scoreboardContainer {
       position: absolute;
-      top: 40px;
+      top: 60px;
       left: 50%;
       transform: translateX(-50%);
       width: 400px;
@@ -58,7 +58,7 @@
       z-index: 3;
       pointer-events: none;
     }
-    /* New Game button styling */
+    /* New Game button styling (absolutely positioned over the game area) */
     #newGameButton {
       position: absolute;
       display: none;
@@ -78,9 +78,10 @@
     <canvas id="gameCanvas" width="800" height="640"></canvas>
     <!-- SVG overlay for field markings -->
     <svg id="fieldOverlay" viewBox="0 0 800 640" preserveAspectRatio="none">
-      <!-- Draw endzone boundaries and yard lines from y=0 to y=600 -->
+      <!-- Endzone boundaries drawn from y=0 to y=600 -->
       <line x1="80" y1="0" x2="80" y2="600" stroke="white" stroke-width="2"/>
       <line x1="720" y1="0" x2="720" y2="600" stroke="white" stroke-width="2"/>
+      <!-- Yard lines every 64 units drawn from y=0 to y=600 -->
       <line x1="144" y1="0" x2="144" y2="600" stroke="white" stroke-width="2"/>
       <line x1="208" y1="0" x2="208" y2="600" stroke="white" stroke-width="2"/>
       <line x1="272" y1="0" x2="272" y2="600" stroke="white" stroke-width="2"/>
@@ -100,7 +101,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Bottom yard markers placed under the yard lines at y=630 -->
+      <!-- Bottom yard markers placed below the yard lines at y=630 -->
       <text x="144" y="630" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="630" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="630" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -110,15 +111,16 @@
       <text x="528" y="630" fill="white" font-size="24" text-anchor="middle">70</text>
       <text x="592" y="630" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="630" fill="white" font-size="24" text-anchor="middle">90</text>
-      <!-- Revised Goal Posts (flipped): a horizontal crossbar at the bottom of the goal sensor,
-           with a vertical post extending upward from its center.
-           The goal sensor remains at (750,500) with height 200 (top=400, bottom=600).
-           We draw the crossbar at y=600 from x=730 to x=770,
-           and the vertical post from (750,600) up to (750,400). -->
-      <line x1="730" y1="600" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <line x1="750" y1="600" x2="750" y2="400" stroke="white" stroke-width="4"/>
+      <!-- Revised Goal Posts: Draw two vertical posts and a horizontal crossbar, with a center post extending downward -->
+      <!-- Vertical posts: at x=730 and x=770 from y=400 to y=600 -->
+      <line x1="730" y1="400" x2="730" y2="600" stroke="white" stroke-width="4"/>
+      <line x1="770" y1="400" x2="770" y2="600" stroke="white" stroke-width="4"/>
+      <!-- Horizontal crossbar connecting them at y=400 -->
+      <line x1="730" y1="400" x2="770" y2="400" stroke="white" stroke-width="4"/>
+      <!-- Center vertical post extending downward from the center of the crossbar -->
+      <line x1="750" y1="400" x2="750" y2="640" stroke="white" stroke-width="4"/>
     </svg>
-    <!-- Scoreboard overlay inside the game container, just beneath the top yard markers -->
+    <!-- Scoreboard overlay inside the game container -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
     <!-- New Game button (absolutely positioned over the game area) -->
     <button id="newGameButton">New Game</button>
@@ -186,7 +188,7 @@
     const world = engine.world;
     
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set background to transparent so the SVG overlay is visible.
+    // Set background to transparent so the SVG overlay shows.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
