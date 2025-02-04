@@ -1,0 +1,9 @@
+{
+  "name": "Emoji Football Kick Game",
+  "short_name": "FootballGame",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB"
+}
