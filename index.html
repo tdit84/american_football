@@ -290,6 +290,7 @@
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
+      context.restore();
       // Draw drag indicator if active.
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
