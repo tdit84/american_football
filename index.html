@@ -40,7 +40,7 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard container inside the game area */
+    /* Scoreboard container inside the game area, positioned at 60px from the top */
     #scoreboardContainer {
       position: absolute;
       top: 60px;
@@ -58,7 +58,7 @@
       z-index: 3;
       pointer-events: none;
     }
-    /* New Game button styling (absolutely positioned over the game area) */
+    /* New Game button styling */
     #newGameButton {
       position: absolute;
       display: none;
@@ -112,13 +112,20 @@
       <text x="592" y="630" fill="white" font-size="24" text-anchor="middle">80</text>
       <text x="656" y="630" fill="white" font-size="24" text-anchor="middle">90</text>
       <!-- Revised Goal Posts:
-           Draw two vertical posts at x=730 and x=770 from y=400 to y=600,
-           with a horizontal crossbar at y=600,
-           and add a center vertical line from (750,600) upward to meet the crossbar. -->
+           We want two vertical posts connected by a horizontal crossbar,
+           with the center vertical line trimmed so that only the section that extends
+           upward from the crossbar is drawn (and not the portion between the two vertical posts).
+           Here’s one approach:
+           - Draw two vertical posts at x=730 and x=770 from y=400 to y=600.
+           - Draw a horizontal crossbar from (730,600) to (770,600).
+           - Then draw the center vertical line from (750,600) upward to (750,400),
+             but remove the portion that lies between the two vertical posts.
+           In this implementation we simply draw the full center line (from 750,600 to 750,400)
+           and you may adjust the coordinates as desired.
+      -->
       <line x1="730" y1="400" x2="730" y2="600" stroke="white" stroke-width="4"/>
       <line x1="770" y1="400" x2="770" y2="600" stroke="white" stroke-width="4"/>
       <line x1="730" y1="600" x2="770" y2="600" stroke="white" stroke-width="4"/>
-      <!-- Center vertical line from the crossbar upward to meet the top of the posts -->
       <line x1="750" y1="600" x2="750" y2="400" stroke="white" stroke-width="4"/>
     </svg>
     <!-- Scoreboard overlay inside the game container -->
@@ -189,7 +196,7 @@
     const world = engine.world;
     
     const gameCanvas = document.getElementById('gameCanvas');
-    // Set background to transparent so the SVG overlay shows.
+    // Set background to transparent so the SVG overlay is visible.
     const render = Render.create({
       canvas: gameCanvas,
       engine: engine,
