@@ -54,7 +54,7 @@
       border-radius: 8px;
       z-index: 3;
     }
-    /* New Game button (hidden during play; appears in scoreboard location when time expires) */
+    /* New Game button (hidden during play; appears at same position when time expires) */
     #newGameButton {
       position: absolute;
       top: 60px;
@@ -101,7 +101,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
-      <!-- Bottom yard markers from y=640 with same values -->
+      <!-- Bottom yard markers at y=640 -->
       <text x="144" y="640" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="640" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="640" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -117,7 +117,7 @@
       <line x1="730" y1="600" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
       <line x1="750" y1="600" x2="750" y2="640" stroke="yellow" stroke-width="4"/>
     </svg>
-    <!-- Scoreboard visible during play -->
+    <!-- Scoreboard (visible during play) -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
     <!-- New Game button (hidden during play) -->
     <button id="newGameButton">New Game</button>
@@ -232,7 +232,7 @@
       document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
     });
 
-    // Create the Scene
+    // Create the Scene (no vertical shift)
     const ground = Bodies.rectangle(400, 590, 810, 20, {
       isStatic: true,
       render: { fillStyle: "#087E3B" }
@@ -242,7 +242,7 @@
     const obstacle1 = Bodies.rectangle(400, 500, 100, 20, {
       isStatic: true,
       angle: Math.PI * 0.06,
-      render: { fillStyle: "#000000" },
+      render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
@@ -251,7 +251,7 @@
     const obstacle2 = Bodies.rectangle(600, 400, 150, 20, {
       isStatic: true,
       angle: -Math.PI * 0.1,
-      render: { fillStyle: "#000000" },
+      render: { fillStyle: "#8B4513" },
       isObstacle: true,
       isOriginal: true
     });
@@ -274,7 +274,7 @@
     });
     Composite.add(world, ball);
 
-    // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
+    // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols
     Events.on(render, 'afterRender', function() {
       const context = render.context;
       // Draw the football emoji on the ball.
@@ -282,7 +282,7 @@
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-      // Draw drag indicator.
+      // Draw drag indicator if active.
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
         context.lineWidth = 3;
@@ -293,11 +293,10 @@
         context.font = "75px serif";
         context.fillText("👟", ball.position.x - 50, ball.position.y);
       }
-      // When game is over, draw the final score with a background.
       if (!gameActive) {
-        // Draw semi-transparent rectangle.
+        // Draw a semi-transparent rectangle as background for final score.
         context.fillStyle = "rgba(0,0,0,0.7)";
-        context.fillRect(200, 280, 400, 80);
+        context.fillRect(100, 280, 600, 80);
         context.font = "64px sans-serif";
         context.fillStyle = "white";
         context.textAlign = "center";
@@ -319,7 +318,7 @@
       });
     });
 
-    // Interaction for the Kick.
+    // Interaction for the Kick
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
@@ -392,7 +391,7 @@
       }
     });
 
-    // Collision and Reset Functions.
+    // Collision and Reset Functions
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -405,21 +404,16 @@
           // Create a new obstacle with a random symbol.
           let newX, newY;
           if (Math.random() < 0.5) {
-            newX = random.uniform(300, 650);
-            newY = random.uniform(550, 580);
+            newX = Math.random() * (650 - 300) + 300;
+            newY = Math.random() * (580 - 550) + 550;
           } else {
-            newX = random.uniform(300, 650);
-            newY = random.uniform(200, 400);
+            newX = Math.random() * (650 - 300) + 300;
+            newY = Math.random() * (400 - 200) + 200;
           }
-          // If random.uniform is not available, use:
-          newX = Math.random() * (650 - 300) + 300;
-          newY = (Math.random() < 0.5)
-                 ? Math.random() * (580 - 550) + 550
-                 : Math.random() * (400 - 200) + 200;
           const newObstacle = Bodies.rectangle(newX, newY, 100, 20, {
             isStatic: true,
             angle: Math.PI * (Math.random() * 0.3 - 0.15),
-            render: { fillStyle: "#000000" },
+            render: { fillStyle: "#8B4513" },
             isObstacle: true,
             isNewObstacle: true
           });
