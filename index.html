@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Add viewport meta tag to better control scaling on mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Emoji Football Kick Game</title>
+  <style>
+    body { margin: 0; overflow: hidden; position: relative; }
+    canvas { display: block; }
+    /* New Game button styling */
+    #newGameButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      padding: 10px 20px;
+      display: none;
+      z-index: 10;
+    }
+    /* Fullscreen button styling */
+    #fullscreenButton {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 16px;
+      padding: 8px 12px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas for the game -->
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <!-- New Game button -->
+  <button id="newGameButton">New Game</button>
+  <!-- Fullscreen toggle button -->
+  <button id="fullscreenButton">Fullscreen</button>
+  
+  <!-- Include Matter.js from a CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script>
+    // Module aliases.
+    const Engine    = Matter.Engine,
+          Render    = Matter.Render,
+          Runner    = Matter.Runner,
+          Bodies    = Matter.Bodies,
+          Composite = Matter.Composite,
+          Body      = Matter.Body,
+          Events    = Matter.Events;
+    
+    // Create the physics engine and world.
+    const engine = Engine.create();
+    const world  = engine.world;
+    
+    // Set up the canvas and renderer.
+    const canvas = document.getElementById('gameCanvas');
+    const render = Render.create({
+      canvas: canvas,
+      engine: engine,
+      options: {
+        width: 800,
+        height: 600,
+        wireframes: false,
+        background: '#87CEEB'
+      }
+    });
+    Render.run(render);
+    
+    // Create a runner.
+    const runner = Runner.create();
+    Runner.run(runner, engine);
+    
+    // ----- Global Game Variables -----
+    let score = 0;
+    let kickCount = 0;      
+    let goalMessage = "";   
+    let timeLeft = 30;      
+    let gameActive = true;  
+    
+    // Start the countdown timer.
+    const timerInterval = setInterval(() => {
+      if (gameActive) {
+        timeLeft--;
+        if (timeLeft <= 0) {
+          timeLeft = 0;
+          gameActive = false;
+          showNewGameButton();
+        }
+      }
+    }, 1000);
+    
+    // New Game button functionality.
+    const newGameButton = document.getElementById('newGameButton');
+    newGameButton.addEventListener('click', () => {
+      resetGame();
+      newGameButton.style.display = "none";
+    });
+    
+    // Fullscreen button functionality.
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    fullscreenButton.addEventListener('click', () => {
+      // Toggle full screen mode.
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.error("Error attempting to enable full-screen mode:", err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+    
+    // Optionally, adjust canvas size when entering/exiting fullscreen.
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        // Set canvas to full viewport size.
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        render.options.width = window.innerWidth;
+        render.options.height = window.innerHeight;
+      } else {
+        // Revert to default dimensions.
+        canvas.width = 800;
+        canvas.height = 600;
+        render.options.width = 800;
+        render.options.height = 600;
+      }
+    });
+    
+    // ----- Create the Scene -----
+    const ground = Bodies.rectangle(400, 590, 810, 20, { 
+      isStatic: true,
+      render: { fillStyle: '#32CD32' }
+    });
+    Composite.add(world, ground);
+    
+    const obstacle1 = Bodies.rectangle(400, 500, 100, 20, { 
+      isStatic: true, 
+      angle: Math.PI * 0.06, 
+      render: { fillStyle: '#8B4513' },
+      isObstacle: true,
+      isOriginal: true
+    });
+    const obstacle2 = Bodies.rectangle(600, 400, 150, 20, { 
+      isStatic: true, 
+      angle: -Math.PI * 0.1, 
+      render: { fillStyle: '#8B4513' },
+      isObstacle: true,
+      isOriginal: true
+    });
+    Composite.add(world, [obstacle1, obstacle2]);
+    
+    const goal = Bodies.rectangle(750, 500, 80, 200, { 
+      isStatic: true, 
+      isSensor: true, 
+      render: { fillStyle: 'rgba(0,0,0,0)' }
+    });
+    Composite.add(world, goal);
+    
+    const ballRadius = 20;
+    const ball = Bodies.circle(150, 500, ballRadius, { 
+      restitution: 0.6, 
+      density: 0.004,
+      render: { fillStyle: '#ffffff' }
+    });
+    Composite.add(world, ball);
+    
+    // ----- Custom Rendering -----
+    Events.on(render, 'afterRender', function() {
+      const context = render.context;
+      
+      context.font = "40px serif";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText("🏈", ball.position.x, ball.position.y);
+      
+      if (isDragging && dragStart && dragCurrent && gameActive) {
+        context.strokeStyle = "red";
+        context.lineWidth = 3;
+        context.beginPath();
+        context.moveTo(ball.position.x, ball.position.y);
+        context.lineTo(dragCurrent.x, dragCurrent.y);
+        context.stroke();
+        
+        context.font = "75px serif";
+        context.fillText("👟", ball.position.x - 50, ball.position.y);
+      }
+      
+      if (gameActive) {
+        context.font = "20px sans-serif";
+        context.fillStyle = "black";
+        context.textAlign = "left";
+        context.fillText("Score: " + score, 10, 30);
+        
+        context.font = "20px sans-serif";
+        context.fillStyle = "black";
+        context.textAlign = "right";
+        context.fillText("Time: " + timeLeft, render.options.width - 10, 30);
+      } else {
+        context.font = "80px sans-serif";
+        context.fillStyle = "black";
+        context.textAlign = "center";
+        context.fillText("Final Score: " + score, render.options.width / 2, 100);
+      }
+      
+      // Draw goal posts.
+      context.strokeStyle = "white";
+      context.lineWidth = 5;
+      context.beginPath();
+      context.moveTo(goal.position.x - 30, goal.position.y - 100);
+      context.lineTo(goal.position.x + 30, goal.position.y - 100);
+      context.stroke();
+      
+      context.beginPath();
+      context.moveTo(goal.position.x - 30, goal.position.y - 100);
+      context.lineTo(goal.position.x - 30, goal.position.y + 100);
+      context.stroke();
+      
+      context.beginPath();
+      context.moveTo(goal.position.x + 30, goal.position.y - 100);
+      context.lineTo(goal.position.x + 30, goal.position.y + 100);
+      context.stroke();
+      
+      if (goalMessage) {
+        context.font = "50px sans-serif";
+        context.fillStyle = "red";
+        context.textAlign = "center";
+        context.fillText(goalMessage, render.options.width / 2, 300);
+      }
+    });
+    
+    // ----- Interaction for the Kick -----
+    let isDragging = false;
+    let dragStart = null;
+    let dragCurrent = null;
+    
+    function getCanvasPos(canvas, evt) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+    
+    canvas.addEventListener('mousedown', function(evt) {
+      if (!gameActive) return;
+      const mousePos = getCanvasPos(canvas, evt);
+      const dist = Math.hypot(mousePos.x - ball.position.x, mousePos.y - ball.position.y);
+      if (dist <= ballRadius) {
+        isDragging = true;
+        dragStart = mousePos;
+        dragCurrent = mousePos;
+      }
+    });
+    
+    canvas.addEventListener('mousemove', function(evt) {
+      if (!gameActive) return;
+      if (isDragging) {
+        dragCurrent = getCanvasPos(canvas, evt);
+      }
+    });
+    
+    canvas.addEventListener('mouseup', function(evt) {
+      if (!gameActive) return;
+      if (isDragging) {
+        isDragging = false;
+        const dragEnd = getCanvasPos(canvas, evt);
+        const forceMagnitude = 0.005;
+        const force = {
+          x: (dragStart.x - dragEnd.x) * forceMagnitude,
+          y: (dragStart.y - dragEnd.y) * forceMagnitude
+        };
+        Body.applyForce(ball, ball.position, force);
+        kickCount++;
+        dragStart = null;
+        dragCurrent = null;
+      }
+    });
+    
+    canvas.addEventListener('touchstart', function(evt) {
+      if (!gameActive) return;
+      evt.preventDefault();
+      const touch = evt.touches[0];
+      const pos = getCanvasPos(canvas, touch);
+      const dist = Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y);
+      if (dist <= ballRadius) {
+        isDragging = true;
+        dragStart = pos;
+        dragCurrent = pos;
+      }
+    });
+    
+    canvas.addEventListener('touchmove', function(evt) {
+      if (!gameActive) return;
+      evt.preventDefault();
+      if (isDragging) {
+        const touch = evt.touches[0];
+        dragCurrent = getCanvasPos(canvas, touch);
+      }
+    });
+    
+    canvas.addEventListener('touchend', function(evt) {
+      if (!gameActive) return;
+      evt.preventDefault();
+      if (isDragging) {
+        isDragging = false;
+        const touch = evt.changedTouches[0];
+        const dragEnd = getCanvasPos(canvas, touch);
+        const forceMagnitude = 0.005;
+        const force = {
+          x: (dragStart.x - dragEnd.x) * forceMagnitude,
+          y: (dragStart.y - dragEnd.y) * forceMagnitude
+        };
+        Body.applyForce(ball, ball.position, force);
+        kickCount++;
+        dragStart = null;
+        dragCurrent = null;
+      }
+    });
+    
+    // ----- Collision Events and Reset Functions (unchanged) -----
+    Events.on(engine, 'collisionStart', function(event) {
+      if (!gameActive) return;
+      event.pairs.forEach(pair => {
+        if ((pair.bodyA === ball && pair.bodyB === goal) ||
+            (pair.bodyB === ball && pair.bodyA === goal)) {
+          let roundScore = 100 - ((kickCount - 1) * 10);
+          if (roundScore < 0) roundScore = 0;
+          score += roundScore;
+          goalMessage = "TOUCHDOWN!";
+          setTimeout(() => { goalMessage = ""; }, 2000);
+          resetRound();
+          
+          let newX, newY;
+          if (Math.random() < 0.5) {
+            newX = Math.random() * (650 - 300) + 300;
+            newY = Math.random() * (580 - 550) + 550;
+          } else {
+            newX = Math.random() * (650 - 300) + 300;
+            newY = Math.random() * (400 - 200) + 200;
+          }
+          const newObstacle = Bodies.rectangle(newX, newY, 100, 20, {
+            isStatic: true,
+            angle: Math.PI * (Math.random() * 0.3 - 0.15),
+            render: { fillStyle: '#8B4513' },
+            isObstacle: true,
+            isNewObstacle: true
+          });
+          Composite.add(world, newObstacle);
+        }
+      });
+    });
+    
+    Events.on(engine, 'collisionStart', function(event) {
+      if (!gameActive) return;
+      event.pairs.forEach(pair => {
+        if ((pair.bodyA === ball && pair.bodyB.isObstacle) ||
+            (pair.bodyB === ball && pair.bodyA.isObstacle)) {
+          score = Math.max(score - 50, 0);
+        }
+      });
+    });
+    
+    Events.on(engine, 'afterUpdate', function() {
+      if (!gameActive) return;
+      if (ball.position.x < 0 || ball.position.x > render.options.width) {
+        alert("Ball went off screen. Game over.");
+        resetGame();
+      }
+    });
+    
+    function resetRound() {
+      Body.setPosition(ball, { x: 150, y: 500 });
+      Body.setVelocity(ball, { x: 0, y: 0 });
+      kickCount = 0;
+    }
+    
+    function resetGame() {
+      const allBodies = Composite.allBodies(world);
+      allBodies.forEach(body => {
+        if (!body.isOriginal && body.isObstacle) {
+          Composite.remove(world, body);
+        }
+      });
+      score = 0;
+      timeLeft = 30;
+      gameActive = true;
+      resetRound();
+    }
+    
+    function showNewGameButton() {
+      newGameButton.style.display = "block";
+    }
+    
+  </script>
+</body>
+</html>
