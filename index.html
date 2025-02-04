@@ -274,11 +274,10 @@
     Composite.add(world, goal);
 
     const ballRadius = 20;
-    # Minimal change: add visible: false to the ball's render properties so the white circle is not drawn.
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      render: { fillStyle: "#ffffff", visible: false }
+      render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
 
@@ -333,7 +332,8 @@
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
-      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius) {
+      // Expand the touch area: allow kick trigger if within 3 * ballRadius.
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 3) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
@@ -366,7 +366,8 @@
       evt.preventDefault();
       const touch = evt.touches[0];
       const pos = getCanvasPos(gameCanvas, touch);
-      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius) {
+      // Expand the touch area: allow kick trigger if within 3 * ballRadius.
+      if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 3) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
