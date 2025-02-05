@@ -1,11 +1,20 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- Responsive viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emoji Football Kick Game</title>
+  
+  <!-- Open Graph tags with placeholders -->
+  <meta property="og:title" content="Tom's American Football Challenge">
+  <meta property="og:description" content="Play the Super Bowl Challenge Game!">
+  <meta property="og:image" content="https://tdit84.github.io/american_football/images/American_football_website_image.png">
+  <meta property="og:url" content="https://tdit84.github.io/american_football/">
+  <meta property="og:type" content="website">
+  
+  <title>Toms American Football Game</title>
   <style>
+    /* Standard CSS with normal braces and # for colors */
     html, body {
       margin: 0;
       padding: 0;
@@ -37,7 +46,6 @@
       height: 100%;
       pointer-events: none;
     }
-    /* Scoreboard visible during play */
     #scoreboardContainer {
       position: absolute;
       top: 60px;
@@ -54,7 +62,6 @@
       border-radius: 8px;
       z-index: 3;
     }
-    /* New Game button (appears in the same place as the scoreboard when time expires) */
     #newGameButton {
       position: absolute;
       top: 60px;
@@ -82,11 +89,12 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels with extra letter spacing and in white (swapped sides):
-           Left end zone: "SONYA" rotated –90°; Right end zone: "EVA" rotated 90° -->
-      <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
-      <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
-      <!-- Field boundaries and yard lines from y=50 to y=600 -->
+      <!-- End Zone Labels -->
+      <text x="40" y="325" fill="white" font-size="48px" font-weight="bold"
+            letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
+      <text x="760" y="325" fill="white" font-size="48px" font-weight="bold"
+            letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
+      <!-- Field boundaries and yard lines -->
       <line x1="80" y1="50" x2="80" y2="600" stroke="white" stroke-width="2"/>
       <line x1="720" y1="50" x2="720" y2="600" stroke="white" stroke-width="2"/>
       <line x1="144" y1="50" x2="144" y2="600" stroke="white" stroke-width="2"/>
@@ -98,7 +106,7 @@
       <line x1="528" y1="50" x2="528" y2="600" stroke="white" stroke-width="2"/>
       <line x1="592" y1="50" x2="592" y2="600" stroke="white" stroke-width="2"/>
       <line x1="656" y1="50" x2="656" y2="600" stroke="white" stroke-width="2"/>
-      <!-- Top yard markers (values: 10,20,30,40,50,40,30,20,10) at y=30 -->
+      <!-- Top yard markers -->
       <text x="144" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -108,7 +116,7 @@
       <text x="528" y="30" fill="white" font-size="24" text-anchor="middle">30</text>
       <text x="592" y="30" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="656" y="30" fill="white" font-size="24" text-anchor="middle">10</text>
-      <!-- Bottom yard markers at y=640 (same values) -->
+      <!-- Bottom yard markers -->
       <text x="144" y="640" fill="white" font-size="24" text-anchor="middle">10</text>
       <text x="208" y="640" fill="white" font-size="24" text-anchor="middle">20</text>
       <text x="272" y="640" fill="white" font-size="24" text-anchor="middle">30</text>
@@ -163,15 +171,16 @@
         overlay.style.marginTop = gameCanvas.style.marginTop;
         overlay.style.marginLeft = "0px";
       }
+      // Store the scale factor for converting event coordinates
       gameCanvas.dataset.scale = scale;
     }
     window.addEventListener('resize', resizeCanvases);
     resizeCanvases();
 
     // Convert event coordinates based on scale
-    function getCanvasPos(canvas, evt) {
-      const rect = canvas.getBoundingClientRect();
-      const scale = parseFloat(canvas.dataset.scale) || 1;
+    function getCanvasPos(canvasEl, evt) {
+      const rect = canvasEl.getBoundingClientRect();
+      const scale = parseFloat(canvasEl.dataset.scale) || 1;
       return {
         x: (evt.clientX - rect.left) / scale,
         y: (evt.clientY - rect.top) / scale
@@ -212,11 +221,12 @@
     let timeLeft = 30;
     let gameActive = true;
 
-    // Countdown Timer: update scoreboard; when time expires, hide scoreboard and show New Game button.
+    // Countdown Timer
     const timerInterval = setInterval(() => {
       if (gameActive) {
         timeLeft--;
-        document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
+        document.getElementById('scoreboardContainer').textContent =
+          "Score: " + score + "   Time: " + timeLeft;
         if (timeLeft <= 0) {
           timeLeft = 0;
           gameActive = false;
@@ -230,13 +240,14 @@
       }
     }, 1000);
 
-    // New Game Button: when clicked, reset game, show scoreboard, hide New Game button.
+    // New Game Button
     const newGameButton = document.getElementById('newGameButton');
     newGameButton.addEventListener('click', () => {
       resetGame();
       newGameButton.style.display = "none";
       document.getElementById('scoreboardContainer').style.display = "block";
-      document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
+      document.getElementById('scoreboardContainer').textContent =
+        "Score: " + score + "   Time: " + timeLeft;
     });
 
     // Create the Scene
@@ -277,29 +288,20 @@
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      // Make the ball's circle transparent
-      render: {
-        fillStyle: "transparent",
-        strokeStyle: "transparent",
-        lineWidth: 0
-      }
+      render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
 
-    // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
+    // Custom Rendering
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-
-      // Ensure full opacity for the emoji
-      context.save();
-      context.globalAlpha = 1.0;
+      // Football emoji on the ball
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-      context.restore();
 
-      // Draw drag indicator if active.
+      // Drag indicator
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
         context.lineWidth = 3;
@@ -311,9 +313,8 @@
         context.fillText("👟", ball.position.x - 50, ball.position.y);
       }
 
-      // If game is over, draw final score overlay
+      // If time is up, show final score overlay
       if (!gameActive) {
-        // Draw a semi-transparent rectangle as background for final score (600px wide).
         context.fillStyle = "rgba(0,0,0,0.7)";
         context.fillRect(100, 280, 600, 80);
         context.font = "64px sans-serif";
@@ -322,7 +323,7 @@
         context.fillText("Final Score: " + score, 400, 320);
       }
 
-      // Draw obstacle symbols ("X" or "O") inside obstacles.
+      // Draw obstacle symbols ("X" or "O")
       Composite.allBodies(world).forEach(body => {
         if (body.isObstacle && body.symbol) {
           context.save();
@@ -338,27 +339,29 @@
       });
     });
 
-    // Interaction for the Kick.
+    // Interaction for the Kick
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
 
+    // Mouse
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
-      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
       }
     });
+
     gameCanvas.addEventListener('mousemove', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
         dragCurrent = getCanvasPos(gameCanvas, evt);
       }
     });
+
     gameCanvas.addEventListener('mouseup', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
@@ -369,14 +372,14 @@
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
           y: (dragStart.y - dragEnd.y) * forceMagnitude
         };
-        Body.applyForce(ball, ball.position, force);
+        Matter.Body.applyForce(ball, ball.position, force);
         kickCount++;
         dragStart = null;
         dragCurrent = null;
       }
     });
 
-    // Touch events
+    // Touch
     gameCanvas.addEventListener('touchstart', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -388,6 +391,7 @@
         dragCurrent = pos;
       }
     });
+
     gameCanvas.addEventListener('touchmove', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -396,6 +400,7 @@
         dragCurrent = getCanvasPos(gameCanvas, touch);
       }
     });
+
     gameCanvas.addEventListener('touchend', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
@@ -408,7 +413,7 @@
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
           y: (dragStart.y - dragEnd.y) * forceMagnitude
         };
-        Body.applyForce(ball, ball.position, force);
+        Matter.Body.applyForce(ball, ball.position, force);
         kickCount++;
         dragStart = null;
         dragCurrent = null;
@@ -425,7 +430,7 @@
           if (roundScore < 0) roundScore = 0;
           score += roundScore;
           resetRound();
-          // Create a new obstacle with a random symbol.
+          // Create a new obstacle with a random symbol
           let newX, newY;
           if (Math.random() < 0.5) {
             newX = Math.random() * (650 - 300) + 300;
@@ -446,6 +451,7 @@
         }
       });
     });
+
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -455,6 +461,7 @@
         }
       });
     });
+
     Events.on(engine, 'afterUpdate', function() {
       if (!gameActive) return;
       if (ball.position.x < 0 || ball.position.x > render.options.width) {
