@@ -1,16 +1,21 @@
+
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Open Graph tags with placeholders -->
   <meta property="og:title" content="Tom's American Football Challenge">
   <meta property="og:description" content="Play the Super Bowl Challenge Game!">
   <meta property="og:image" content="https://tdit84.github.io/american_football/images/American_football_website_image.png">
   <meta property="og:url" content="https://tdit84.github.io/american_football/">
   <meta property="og:type" content="website">
+  
   <title>Toms American Football Game</title>
   <style>
-    html, body {{
+    /* Standard CSS with normal braces and # for colors */
+    html, body {
       margin: 0;
       padding: 0;
       overflow-y: auto;
@@ -18,21 +23,21 @@
       height: 100%;
       width: 100%;
       font-family: sans-serif;
-    }}
-    #gameContainer {{
+    }
+    #gameContainer {
       position: relative;
       width: 100%;
       min-height: 650px;
       background: #087E3B;
-    }}
-    #gameCanvas {{
+    }
+    #gameCanvas {
       position: absolute;
       top: 0;
       left: 0;
       z-index: 1;
       display: block;
-    }}
-    #fieldOverlay {{
+    }
+    #fieldOverlay {
       position: absolute;
       top: 0;
       left: 0;
@@ -40,8 +45,8 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-    }}
-    #scoreboardContainer {{
+    }
+    #scoreboardContainer {
       position: absolute;
       top: 60px;
       left: 50%;
@@ -56,8 +61,8 @@
       border: 2px solid white;
       border-radius: 8px;
       z-index: 3;
-    }}
-    #newGameButton {{
+    }
+    #newGameButton {
       position: absolute;
       top: 60px;
       left: 50%;
@@ -74,7 +79,7 @@
       cursor: pointer;
       z-index: 4;
       display: none;
-    }}
+    }
   </style>
 </head>
 <body>
@@ -84,11 +89,11 @@
       <!-- End Zone Rectangles (Darker Green) -->
       <rect x="0" y="50" width="80" height="550" fill="#066D32"/>
       <rect x="720" y="50" width="80" height="550" fill="#066D32"/>
-      <!-- End Zone Labels (rotated text) -->
-      <text x="40" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" 
-            text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
-      <text x="760" y="325" fill="white" font-size="48px" font-weight="bold" letter-spacing="4" 
-            text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
+      <!-- End Zone Labels -->
+      <text x="40" y="325" fill="white" font-size="48px" font-weight="bold"
+            letter-spacing="4" text-anchor="middle" transform="rotate(-90,40,325)">SONYA</text>
+      <text x="760" y="325" fill="white" font-size="48px" font-weight="bold"
+            letter-spacing="4" text-anchor="middle" transform="rotate(90,760,325)">EVA</text>
       <!-- Field boundaries and yard lines -->
       <line x1="80" y1="50" x2="80" y2="600" stroke="white" stroke-width="2"/>
       <line x1="720" y1="50" x2="720" y2="600" stroke="white" stroke-width="2"/>
@@ -367,7 +372,7 @@
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
           y: (dragStart.y - dragEnd.y) * forceMagnitude
         };
-        Body.applyForce(ball, ball.position, force);
+        Matter.Body.applyForce(ball, ball.position, force);
         kickCount++;
         dragStart = null;
         dragCurrent = null;
@@ -408,7 +413,7 @@
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
           y: (dragStart.y - dragEnd.y) * forceMagnitude
         };
-        Body.applyForce(ball, ball.position, force);
+        Matter.Body.applyForce(ball, ball.position, force);
         kickCount++;
         dragStart = null;
         dragCurrent = null;
