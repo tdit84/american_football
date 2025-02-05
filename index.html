@@ -239,7 +239,7 @@
       document.getElementById('scoreboardContainer').textContent = "Score: " + score + "   Time: " + timeLeft;
     });
 
-    // Create the Scene
+    // Create the Scene (no vertical shift)
     const ground = Bodies.rectangle(400, 590, 810, 20, {
       isStatic: true,
       render: { fillStyle: "#087E3B" }
@@ -277,28 +277,18 @@
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      // Make the ball's circle transparent
-      render: {
-        fillStyle: "transparent",
-        strokeStyle: "transparent",
-        lineWidth: 0
-      }
+      render: { fillStyle: "#ffffff" }
     });
     Composite.add(world, ball);
 
     // Custom Rendering for Game Info, Drag Indicator, and Obstacle Symbols.
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-
-      // Ensure full opacity for the emoji
-      context.save();
-      context.globalAlpha = 1.0;
+      // Draw the football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-      context.restore();
-
       // Draw drag indicator if active.
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
@@ -310,8 +300,6 @@
         context.font = "75px serif";
         context.fillText("👟", ball.position.x - 50, ball.position.y);
       }
-
-      // If game is over, draw final score overlay
       if (!gameActive) {
         // Draw a semi-transparent rectangle as background for final score (600px wide).
         context.fillStyle = "rgba(0,0,0,0.7)";
@@ -321,7 +309,6 @@
         context.textAlign = "center";
         context.fillText("Final Score: " + score, 400, 320);
       }
-
       // Draw obstacle symbols ("X" or "O") inside obstacles.
       Composite.allBodies(world).forEach(body => {
         if (body.isObstacle && body.symbol) {
@@ -342,7 +329,6 @@
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
-
     gameCanvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
       const pos = getCanvasPos(gameCanvas, evt);
@@ -375,13 +361,12 @@
         dragCurrent = null;
       }
     });
-
-    // Touch events
     gameCanvas.addEventListener('touchstart', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       const touch = evt.touches[0];
       const pos = getCanvasPos(gameCanvas, touch);
+      // Increase the touch area: allow kick trigger if within 9 * ballRadius.
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
@@ -415,7 +400,7 @@
       }
     });
 
-    // Collision and Reset Functions
+    // Collision and Reset Functions.
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -462,13 +447,11 @@
         resetGame();
       }
     });
-
     function resetRound() {
       Body.setPosition(ball, { x: 150, y: 500 });
       Body.setVelocity(ball, { x: 0, y: 0 });
       kickCount = 0;
     }
-
     function resetGame() {
       const allBodies = Composite.allBodies(world);
       allBodies.forEach(body => {
