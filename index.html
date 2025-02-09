@@ -132,9 +132,7 @@
       <line x1="730" y1="600" x2="770" y2="600" stroke="yellow" stroke-width="4"/>
       <line x1="750" y1="600" x2="750" y2="640" stroke="yellow" stroke-width="4"/>
     </svg>
-    <!-- Scoreboard (visible during play) -->
     <div id="scoreboardContainer">Score: 0   Time: 30</div>
-    <!-- New Game button (hidden during play) -->
     <button id="newGameButton">New Game</button>
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -177,7 +175,6 @@
     window.addEventListener('resize', resizeCanvases);
     resizeCanvases();
 
-    // Convert event coordinates based on scale
     function getCanvasPos(canvasEl, evt) {
       const rect = canvasEl.getBoundingClientRect();
       const scale = parseFloat(canvasEl.dataset.scale) || 1;
@@ -187,7 +184,6 @@
       };
     }
 
-    // Matter.js Setup
     const Engine = Matter.Engine,
           Render = Matter.Render,
           Runner = Matter.Runner,
@@ -199,9 +195,9 @@
     const engine = Engine.create();
     const world = engine.world;
 
-    const gameCanvas = document.getElementById('gameCanvas');
+    const canvas = document.getElementById('gameCanvas');
     const render = Render.create({
-      canvas: gameCanvas,
+      canvas: canvas,
       engine: engine,
       options: {
         width: 800,
@@ -215,13 +211,11 @@
     const runner = Runner.create();
     Runner.run(runner, engine);
 
-    // Global Game Variables
     let score = 0;
     let kickCount = 0;
     let timeLeft = 30;
     let gameActive = true;
 
-    // Countdown Timer
     const timerInterval = setInterval(() => {
       if (gameActive) {
         timeLeft--;
@@ -240,7 +234,6 @@
       }
     }, 1000);
 
-    // New Game Button
     const newGameButton = document.getElementById('newGameButton');
     newGameButton.addEventListener('click', () => {
       resetGame();
@@ -250,7 +243,6 @@
         "Score: " + score + "   Time: " + timeLeft;
     });
 
-    // Create the Scene
     const ground = Bodies.rectangle(400, 590, 810, 20, {
       isStatic: true,
       render: { fillStyle: "#087E3B" }
@@ -288,20 +280,17 @@
     const ball = Bodies.circle(150, 500, ballRadius, {
       restitution: 0.6,
       density: 0.004,
-      render: { fillStyle: "#ffffff" }
+      render: { fillStyle: "#ffffff" }  // The white circle (physics) remains white.
     });
     Composite.add(world, ball);
 
-    // Custom Rendering
     Events.on(render, 'afterRender', function() {
       const context = render.context;
-      // Football emoji on the ball
+      // Draw the American football emoji on the ball.
       context.font = "40px serif";
       context.textAlign = "center";
       context.textBaseline = "middle";
       context.fillText("🏈", ball.position.x, ball.position.y);
-
-      // Drag indicator
       if (gameActive && isDragging && dragStart && dragCurrent) {
         context.strokeStyle = "red";
         context.lineWidth = 3;
@@ -312,8 +301,6 @@
         context.font = "75px serif";
         context.fillText("👟", ball.position.x - 50, ball.position.y);
       }
-
-      // If time is up, show final score overlay
       if (!gameActive) {
         context.fillStyle = "rgba(0,0,0,0.7)";
         context.fillRect(100, 280, 600, 80);
@@ -322,8 +309,6 @@
         context.textAlign = "center";
         context.fillText("Final Score: " + score, 400, 320);
       }
-
-      // Draw obstacle symbols ("X" or "O")
       Composite.allBodies(world).forEach(body => {
         if (body.isObstacle && body.symbol) {
           context.save();
@@ -339,34 +324,29 @@
       });
     });
 
-    // Interaction for the Kick
     let isDragging = false;
     let dragStart = null;
     let dragCurrent = null;
-
-    // Mouse
-    gameCanvas.addEventListener('mousedown', function(evt) {
+    canvas.addEventListener('mousedown', function(evt) {
       if (!gameActive) return;
-      const pos = getCanvasPos(gameCanvas, evt);
+      const pos = getCanvasPos(canvas, evt);
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
       }
     });
-
-    gameCanvas.addEventListener('mousemove', function(evt) {
+    canvas.addEventListener('mousemove', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
-        dragCurrent = getCanvasPos(gameCanvas, evt);
+        dragCurrent = getCanvasPos(canvas, evt);
       }
     });
-
-    gameCanvas.addEventListener('mouseup', function(evt) {
+    canvas.addEventListener('mouseup', function(evt) {
       if (!gameActive) return;
       if (isDragging) {
         isDragging = false;
-        const dragEnd = getCanvasPos(gameCanvas, evt);
+        const dragEnd = getCanvasPos(canvas, evt);
         const forceMagnitude = 0.005;
         const force = {
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
@@ -378,36 +358,32 @@
         dragCurrent = null;
       }
     });
-
-    // Touch
-    gameCanvas.addEventListener('touchstart', function(evt) {
+    canvas.addEventListener('touchstart', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       const touch = evt.touches[0];
-      const pos = getCanvasPos(gameCanvas, touch);
+      const pos = getCanvasPos(canvas, touch);
       if (Math.hypot(pos.x - ball.position.x, pos.y - ball.position.y) <= ballRadius * 9) {
         isDragging = true;
         dragStart = pos;
         dragCurrent = pos;
       }
     });
-
-    gameCanvas.addEventListener('touchmove', function(evt) {
+    canvas.addEventListener('touchmove', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       if (isDragging) {
         const touch = evt.touches[0];
-        dragCurrent = getCanvasPos(gameCanvas, touch);
+        dragCurrent = getCanvasPos(canvas, touch);
       }
     });
-
-    gameCanvas.addEventListener('touchend', function(evt) {
+    canvas.addEventListener('touchend', function(evt) {
       if (!gameActive) return;
       evt.preventDefault();
       if (isDragging) {
         isDragging = false;
         const touch = evt.changedTouches[0];
-        const dragEnd = getCanvasPos(gameCanvas, touch);
+        const dragEnd = getCanvasPos(canvas, touch);
         const forceMagnitude = 0.005;
         const force = {
           x: (dragStart.x - dragEnd.x) * forceMagnitude,
@@ -420,7 +396,6 @@
       }
     });
 
-    // Collision and Reset Functions
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -430,7 +405,6 @@
           if (roundScore < 0) roundScore = 0;
           score += roundScore;
           resetRound();
-          // Create a new obstacle with a random symbol
           let newX, newY;
           if (Math.random() < 0.5) {
             newX = Math.random() * (650 - 300) + 300;
@@ -451,7 +425,6 @@
         }
       });
     });
-
     Events.on(engine, 'collisionStart', function(event) {
       if (!gameActive) return;
       event.pairs.forEach(pair => {
@@ -461,21 +434,19 @@
         }
       });
     });
-
+    // Instead of restarting the game when the ball goes out of bounds,
+    // we now simply reset the ball at the starting position without changing the score.
     Events.on(engine, 'afterUpdate', function() {
       if (!gameActive) return;
       if (ball.position.x < 0 || ball.position.x > render.options.width) {
-        alert("Ball went off screen. Game over.");
-        resetGame();
+        resetRound();
       }
     });
-
     function resetRound() {
       Body.setPosition(ball, { x: 150, y: 500 });
       Body.setVelocity(ball, { x: 0, y: 0 });
       kickCount = 0;
     }
-
     function resetGame() {
       const allBodies = Composite.allBodies(world);
       allBodies.forEach(body => {
